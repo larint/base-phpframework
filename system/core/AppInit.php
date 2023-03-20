@@ -1,9 +1,9 @@
 <?php
 
-abstract class LoaderController
+abstract class AppInit
 {
-	protected $view     = NULL;
-	protected $config   = NULL;
+	protected $view  = NULL;
+    protected $model = NULL;
 
     public function __construct( $request )
     {

@@ -1,4 +1,5 @@
 <?php
+use AppRouter as Router;
 
 // router site
 Router::site(function() {

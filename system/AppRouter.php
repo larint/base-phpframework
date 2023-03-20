@@ -1,10 +1,10 @@
 <?php
 /**
- * SystemRouter
- * @filesource  system/SystemRouter.php
+ * AppRouter
+ * @filesource  system/AppRouter.php
  * @description router system
  */
-class SystemRouter{
+class AppRouter {
 
     private static $routes = [
         'GET'    => [],
@@ -90,7 +90,7 @@ class SystemRouter{
         array_push(self::$routes[$method], [$path => [self::$handlerKey => $handler, self::$requestKey => self::$request, self::$aliasRouteKey => $alias ]]);
     }
 
-    public static function run() { 
+    private static function filterControler() { 
         // check if the token is valid
         self::validateTokenPOST();
 
@@ -133,6 +133,43 @@ class SystemRouter{
         }
 
         return self::ROUTER_NOT_FOUND;
+    }
+
+    public static function run()
+    {
+        $runs = self::filterControler();
+
+        if ( $runs == self::METHOD_NOT_FOUND || $runs == self::ROUTER_NOT_FOUND || is_array($runs) ) {
+            if ( is_array($runs) ) {
+                $controller = $runs['controller'];
+                $action = $runs['action'];
+                $args = $runs['args'];
+            } else {
+                $controller = explode('@', ERROR_CONTROLLER)[0];
+                $action = explode('@', ERROR_CONTROLLER)[1];
+            }
+            $pathApp = self::isRequestAdmin() ? PATH_ADMIN  : PATH_SITE;
+            // Include controller 
+            include_once PATH_SYSTEM . '/core/AppInit.php';
+            include_once "$pathApp/controllers/BaseController.php";
+            include_once "$pathApp/controllers/$controller.php";
+
+            if ( !class_exists($controller) ){
+                throw new Exception('Class ' . $controller . ' not exists');
+            }
+
+            $controllerObject = new $controller;
+            
+            if ( !method_exists($controllerObject, $action) ) {
+                throw new Exception("Action $action not exist in $controller");
+            }
+
+            if ( isset($args) && !empty($args) ) {
+                $controllerObject->{$action}($args);
+            } else {          
+                $controllerObject->{$action}();
+            }
+        }
     }
 
     public static function name($alias, $params = array()) {
@@ -202,7 +239,7 @@ class SystemRouter{
         return $routeWithReg;
     }
 
-    public static function isRequestAdmin() {
+    protected static function isRequestAdmin() {
         $requestMethod = self::getRequest();
         $requestUri = self::delLastSlashUri($_GET['url']);
         

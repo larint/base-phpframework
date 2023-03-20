@@ -1,5 +1,5 @@
 <?php
-use Router as App;
+use AppRouter as App;
 
 // load vendor
 require dirname(__DIR__).'/vendor/autoload.php';
@@ -10,13 +10,10 @@ require_once dirname(__DIR__) . '/system/config/config.php';
 // debug
 require_once PATH_SYSTEM . '/Debug.php';
 
-// load router
-require_once PATH_SYSTEM . '/SystemRouter.php';
+// init router app
+require_once PATH_SYSTEM . '/AppRouter.php';
 
-// controller
-require_once PATH_APP . '/Router.php';
-
-// route app
+// load route app
 require_once PATH_APP . '/routes.php';
 
 App::run();

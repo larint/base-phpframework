@@ -27,7 +27,7 @@ abstract class DBCRUD
 		$stmt = $this->con->prepare($sql);
 
 		if($stmt === false) {
-			logs($sql.' / '.$this->con->error);
+			log($sql.' / '.$this->con->error);
 			$time = date("h:m:s d/m/Y", time());
 			if (DEBUG) {
 				die($time.' : '. $sql.' / '.$this->con->error);
@@ -113,7 +113,7 @@ abstract class DBCRUD
 		$this->con = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 		$this->con->set_charset("utf8");
 		if ( mysqli_connect_errno() ) {
-			logs(mysqli_connect_error());
+			log(mysqli_connect_error());
 			if (DEBUG) {
 				die(mysqli_connect_error());
 			}
@@ -292,7 +292,7 @@ abstract class DBCRUD
         );
 
 		if ( !is_bool($data) && count($data) == 1 ) {
-        	return $this->toObj($data[0])->total_record;
+        	return arr_to_obj($data[0])->total_record;
         }
 
         return 0;
@@ -309,7 +309,7 @@ abstract class DBCRUD
         );
 		
         if ( !is_bool($data) && count($data) == 1 ) {
-        	return $this->toObj($data[0]);	
+        	return arr_to_obj($data[0]);	
         } 
 
         return null;
@@ -324,7 +324,7 @@ abstract class DBCRUD
         );
 
         if ( !is_bool($data) && count($data) > 0 ) {
-        	return $this->toObj($data);	
+        	return arr_to_obj($data);	
         } 
 
         return [];
@@ -340,7 +340,7 @@ abstract class DBCRUD
         );
 
         if ( !is_bool($data) && count($data) == 1 ) {
-            return $this->toObj($data[0]);
+            return arr_to_obj($data[0]);
         }
 
         return null;
@@ -353,7 +353,7 @@ abstract class DBCRUD
 		);
 
 		if ( !is_bool($data) && count($data) == 1) {
-            return $this->toObj($data[0])->{$col};
+            return arr_to_obj($data[0])->{$col};
         }
 
         return -1;
@@ -369,7 +369,7 @@ abstract class DBCRUD
         	return null;
         }
 
-        return $this->toObj($data);
+        return arr_to_obj($data);
 	}
 	
 	protected function select($sql, $bindParams = array()) {
@@ -383,7 +383,7 @@ abstract class DBCRUD
         	return [];
         }
         
-		return $this->toObj($data);
+		return arr_to_obj($data);
 	}
 
 	protected function update($sql, $bindParams = array()) {
@@ -406,7 +406,7 @@ abstract class DBCRUD
         	return [];
         }
         
-		return $this->toObj($data);
+		return arr_to_obj($data);
 	}
 
 	protected function existRecord($matchTypeData = null, $whereCols = array()) {
@@ -451,7 +451,7 @@ abstract class DBCRUD
             return [];
         }
         
-        return $this->toObj($data);
+        return arr_to_obj($data);
     }
 
 	protected function paginate($whereLimit = array(), $sortColumn = array()) {
@@ -470,7 +470,7 @@ abstract class DBCRUD
             return [];
         }
         
-        return $this->toObj($data);
+        return arr_to_obj($data);
     }
 
     protected function increment($fields = array(), $matchTypeData = null, $whereCols = array()) {

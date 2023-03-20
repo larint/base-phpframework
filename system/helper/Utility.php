@@ -6,15 +6,15 @@ if (!function_exists('is_login_user')) {
 	}
 }
 
-if (!function_exists('rootUrl')) {
-	function rootUrl() {
+if (!function_exists('root_url')) {
+	function root_url() {
 		$protocal = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
 		return $protocal .'://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 	}
 }
 
-if (!function_exists('extFile')) {
-	function extFile($name) {
+if (!function_exists('ext_file')) {
+	function ext_file($name) {
 		return pathinfo($name, PATHINFO_EXTENSION);
 	}
 }
@@ -151,15 +151,33 @@ if (!function_exists('is_error_app')) {
 	}
 }
 
-if (!function_exists('logs')) {
-	function logs($msg) {
+if (!function_exists('log')) {
+	function log($msg, $filename) {
 		$time = date("h:m:s d/m/Y", time());
-		error_log($time.' : '. $msg . PHP_EOL, 3, PATH_SYSTEM . '/log/exception.log');
+		error_log($time.' : '. $msg . PHP_EOL, 3, PATH_SYSTEM . "/log/$filename");
 	}
 }
 
-if (!function_exists('hashPass')) {
-	function hashPass($pass) {
+if (!function_exists('log_info')) {
+	function log_info($msg) {
+		log($msg, 'info.log');
+	}
+}
+
+if (!function_exists('log_db')) {
+	function log_db($msg) {
+		log($msg, 'db.log');
+	}
+}
+
+if (!function_exists('log_error')) {
+	function log_error($msg) {
+		log($msg, 'error.log');
+	}
+}
+
+if (!function_exists('hash_pass')) {
+	function hash_pass($pass) {
 		return password_hash(md5($pass), PASSWORD_DEFAULT);
 	}
 }
@@ -232,20 +250,20 @@ if (!function_exists('url_short')) {
 	}
 }
 
-if (!function_exists('hasFile')) {
-	function hasFile($FILES) {
+if (!function_exists('has_file_req')) {
+	function has_file_req($FILES) {
 		return $FILES[key($FILES)]['error'] == 0;
 	}
 }
 
-if (!function_exists('get_server_IP')) {
-	function get_server_IP() {
+if (!function_exists('get_server_ip')) {
+	function get_server_ip() {
 		return $_SERVER['SERVER_ADDR'];
 	}
 }
 
-if (!function_exists('get_client_IP')) {
-	function get_client_IP() {
+if (!function_exists('get_client_ip')) {
+	function get_client_ip() {
 		//$_SERVER['SERVER_ADDR']
 		$ipaddress = '';
 		if (isset($_SERVER['HTTP_CLIENT_IP']))
@@ -292,7 +310,7 @@ if (!function_exists('download_file')) {
 			}
 		}
 		
-		$newfname = $pathFolderUpload . $nameFile . '.' . extFile($url);
+		$newfname = $pathFolderUpload . $nameFile . '.' . ext_file($url);
 		$file = fopen($url, "rb");
 		if ($file) {
 			$newf = fopen($newfname, "wb");
@@ -308,7 +326,7 @@ if (!function_exists('download_file')) {
 		if (isset($newf) && $newf) {
 			fclose($newf);
 		}
-		return $nameFile . '.' . extFile($url);
+		return $nameFile . '.' . ext_file($url);
 	}
 }
 
@@ -326,8 +344,29 @@ if (!function_exists('old')) {
 	}
 }
 
-if (!function_exists('toObj')) {
-	function toObj($data = array()) {
+if (!function_exists('arr_to_obj')) {
+	function arr_to_obj($data = array()) {
 		return json_decode(json_encode($data));
+	}
+}
+
+if (!function_exists('redirect_back')) {
+	function redirect_back() {
+		header('Location: ' . $_SERVER['HTTP_REFERER']);
+		die();
+	}
+}
+
+if (!function_exists('redirect')) {
+	function redirect($url, $statusCode = 303)
+	{
+		header('Location: ' . $url, false, $statusCode);
+		die();
+	}
+}
+
+if (!function_exists('current_url')) {
+	function current_url() {
+		return $_SERVER['REQUEST_URI'];
 	}
 }

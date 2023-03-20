@@ -2,7 +2,7 @@
 <html lang="vi">
 
 <head>
-    <meta name="rootUrl" content="<?= rootUrl() ?>">
+    <meta name="root_url" content="<?= root_url() ?>">
     <meta name="_token" content="<?= csrf_token() ?>">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,7 +16,7 @@
     <meta itemprop="image" content="" />
     <meta property="og:site_name" content="" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="<?= rootUrl() ?>" />
+    <meta property="og:url" content="<?= root_url() ?>" />
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:title" content="" />
