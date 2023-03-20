@@ -1,0 +1,12 @@
+Options +FollowSymLinks
+RewriteEngine On
+
+#RewriteBase /hotdeal24h/
+ErrorDocument 404 /404.php
+
+#If the request is for a valid file
+RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteRule ^([a-zA-Z0-9-\/\.]*)$ public/index.php?url=/$1 [L]
+#RewriteRule ^([a-zA-Z0-9-\/]+)\.([a-zA-Z]+)$ public/index.php?url=/$1 [L]
+#RewriteRule ^$ public/index.php?url=/$1 [L]

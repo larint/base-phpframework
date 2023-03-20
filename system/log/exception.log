@@ -1,0 +1,45 @@
+06:03:47 12/03/2023 : Uncaught Error: Call to a member function fetch_field() on bool in /Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php:61
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php(402): DBCRUD->onSelect('select id,login...', Array)
+#1 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/site/models/Account.php(28): DBCRUD->findOnWhere('s', Array)
+#2 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/site/controllers/AuthController.php(41): Account->findOnWhereAccount('\xC6\xB0eq\xC6\xB0eq')
+#3 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/site/controllers/AuthController.php(76): AuthController->doRegistry(Object(stdClass))
+#4 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/Router.php(45): AuthController->__call('doRegistry', Array)
+#5 /Applications/XAMPP/xamppfiles/htdocs/gamespin/public/index.php(22): Router::run()
+#6 {main}
+  thrown/Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php line: 61
+06:03:53 12/03/2023 : Uncaught Error: Call to a member function fetch_field() on bool in /Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php:61
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php(402): DBCRUD->onSelect('select id,login...', Array)
+#1 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/site/models/Account.php(28): DBCRUD->findOnWhere('s', Array)
+#2 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/site/controllers/AuthController.php(41): Account->findOnWhereAccount('\xC3\xA1\xC4\x91\xC3\xA1')
+#3 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/site/controllers/AuthController.php(75): AuthController->doRegistry(Object(stdClass))
+#4 /Applications/XAMPP/xamppfiles/htdocs/gamespin/app/Router.php(45): AuthController->__call('doRegistry', Array)
+#5 /Applications/XAMPP/xamppfiles/htdocs/gamespin/public/index.php(22): Router::run()
+#6 {main}
+  thrown/Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php line: 61
+10:03:30 13/03/2023 : Unknown database 'abc'
+10:03:30 13/03/2023 : mysqli::set_charset(): Couldn't fetch mysqli/Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php line: 114
+10:03:26 15/03/2023 : Unknown database 'abc'
+10:03:26 15/03/2023 : Unknown database 'abc'
+10:03:26 15/03/2023 : mysqli::set_charset(): Couldn't fetch mysqli/Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php line: 114
+10:03:26 15/03/2023 : mysqli::set_charset(): Couldn't fetch mysqli/Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php line: 114
+10:03:26 15/03/2023 : Unknown database 'abc'
+10:03:26 15/03/2023 : mysqli::set_charset(): Couldn't fetch mysqli/Applications/XAMPP/xamppfiles/htdocs/gamespin/system/core/crud/DBCRUD.php line: 114
+01:03:57 20/03/2023 : Unknown database 'abc'
+01:03:57 20/03/2023 : mysqli::set_charset(): Couldn't fetch mysqli/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/system/core/crud/DBCRUD.php line: 114
+01:03:06 20/03/2023 : Unknown database 'abc'
+01:03:06 20/03/2023 : mysqli::set_charset(): Couldn't fetch mysqli/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/system/core/crud/DBCRUD.php line: 114
+02:03:10 20/03/2023 : include(): Failed opening '/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/partials/popup.php' for inclusion (include_path='.:/Applications/XAMPP/xamppfiles/lib/php')/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/pages/index.php line: 92
+02:03:10 20/03/2023 : include(): Failed opening '/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/partials/popup.php' for inclusion (include_path='.:/Applications/XAMPP/xamppfiles/lib/php')/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/pages/index.php line: 92
+02:03:11 20/03/2023 : include(): Failed opening '/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/partials/popup.php' for inclusion (include_path='.:/Applications/XAMPP/xamppfiles/lib/php')/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/pages/index.php line: 92
+02:03:12 20/03/2023 : include(): Failed opening '/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/partials/popup.php' for inclusion (include_path='.:/Applications/XAMPP/xamppfiles/lib/php')/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/pages/index.php line: 92
+02:03:12 20/03/2023 : include(): Failed opening '/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/partials/popup.php' for inclusion (include_path='.:/Applications/XAMPP/xamppfiles/lib/php')/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/views/pages/index.php line: 92
+02:03:15 20/03/2023 : Uncaught Error: Class 'AccountPoint' not found in /Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/controllers/HomeController.php:8
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/Router.php(38): HomeController->__construct()
+#1 /Applications/XAMPP/xamppfiles/htdocs/base-phpframework/public/index.php(22): Router::run()
+#2 {main}
+  thrown/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/controllers/HomeController.php line: 8
+02:03:35 20/03/2023 : include_once(): Failed opening '/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/controllers/AuthController.php' for inclusion (include_path='.:/Applications/XAMPP/xamppfiles/lib/php')/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/Router.php line: 31
+02:03:35 20/03/2023 : include_once(): Failed opening '/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/site/controllers/AuthController.php' for inclusion (include_path='.:/Applications/XAMPP/xamppfiles/lib/php')/Applications/XAMPP/xamppfiles/htdocs/base-phpframework/app/Router.php line: 31
