@@ -2,8 +2,6 @@
 
 abstract class AppInit
 {
-	protected $view  = NULL;
-    protected $model = NULL;
 
     public function __construct( $request )
     {
@@ -22,4 +20,5 @@ abstract class AppInit
         require_once PATH_SYSTEM . '/core/loader/TemplateLoader.php';
         $this->view = new TemplateLoader($request);
     }
+    
 }

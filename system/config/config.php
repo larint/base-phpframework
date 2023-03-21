@@ -15,7 +15,6 @@ define('VIEW_ADMIN', PATH_ADMIN . '/views');
 define('VIEW_SITE', PATH_SITE . '/views');
 
 // default controller error used in AppRouter
-define('page404', PATH_ROOT . '/404');
 define('ERROR_CONTROLLER', 'ErrorController@index');
 
 define('REQUEST_ADMIN', 'admin');

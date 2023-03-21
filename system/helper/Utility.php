@@ -370,3 +370,44 @@ if (!function_exists('current_url')) {
 		return $_SERVER['REQUEST_URI'];
 	}
 }
+
+if (!function_exists('build_non_nested_recursive')) {
+	function build_non_nested_recursive(array &$out, $key, array $in, $split = '.'){
+		foreach($in as $k => $v){
+			if(is_array($v)){
+				build_non_nested_recursive($out, "$key$k$split", $v, $split);
+			}else{
+				$out[$key . $k] = $v;
+			}
+		}
+	}
+}
+
+/**
+ * ex: config('app.db.mysql.host')
+ */
+if (!function_exists('config')) {
+	function config($key = '') {
+		if ($key == '') {
+			throw new Exception("key config empty", 1);
+		}
+		$files1 = glob(PATH_SITE . '/config/*.php');
+		$files2 = glob(PATH_ADMIN . '/config/*.php');
+		$files = array_merge($files1, $files2);
+		$configArr = [];
+		foreach ($files as $fileName) {
+			$config = include $fileName;
+			if (!is_array($config)) {
+				throw new Exception("Config file format must return as array.");
+			}
+			if ( !empty($config) ){
+				$pref = basename($fileName, '.php');
+				$configTemp = array();
+				build_non_nested_recursive($configTemp, "$pref.", $config);
+				$configArr = array_merge($configArr, $configTemp);
+			}
+		}
+
+		return isset($configArr[$key]) ? $configArr[$key] : '';
+	}
+}

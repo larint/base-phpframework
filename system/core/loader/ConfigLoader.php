@@ -18,23 +18,34 @@ class ConfigLoader
 
     		foreach ($files as $fileName) {
 				$config = include $fileName;
+				if (!is_array($config)) {
+					throw new Exception("Config file format must return as array.");
+				}
 				if ( !empty($config) ){
-					foreach ($config as $key => $item){
+					$pref = basename($fileName, '.php');
+					$configArr = array();
+					$this->buildNonNestedRecursive($configArr, "$pref.", $config);
+					foreach ($configArr as $key => $item) {
 						$this->{$key} = $item;
 					}
 				}
     		}
     		return true;
     	} else {
-            $configFullPath = $this->pathConfig . '/config/' . $configName . '.php';
+            $configFullPath = $this->pathConfig . "/config/$configName.php";
             if ( !file_exists($configFullPath) ){
-                throw new Exception('File does not exist: ' . $configFullPath);
+                throw new Exception("File does not exist: $configFullPath");
             }
 
     		$configName = strtolower($configName);
 			$config = include $configFullPath;
+			if (!is_array($config)) {
+				throw new Exception("Config file format must return as array.");
+			}
 			if ( !empty($config) ){
-				foreach ($config as $key => $item){
+				$configArr = array();
+				$this->buildNonNestedRecursive($configArr, "$configName.", $config);
+				foreach ($configArr as $key => $item){
 					$this->{$key} = $item;
 				}
 				return true;
@@ -49,7 +60,17 @@ class ConfigLoader
 	 */
     public function key($key, $defaulVal = null)
     {
-    	return isset($this->config[$key]) ? $this->config[$key] : $defaulVal;
+    	return isset($this->{$key}) ? $this->{$key} : $defaulVal;
     }
+
+	private function buildNonNestedRecursive(array &$out, $key, array $in, $split = '.'){
+		foreach($in as $k => $v){
+			if(is_array($v)){
+				$this->buildNonNestedRecursive($out, "$key$k$split", $v, $split);
+			}else{
+				$out[$key . $k] = $v;
+			}
+		}
+	}
     
 }

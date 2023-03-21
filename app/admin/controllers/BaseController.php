@@ -1,13 +1,5 @@
 <?php
 
-/**
-
- * BaseController
-
- * @filesource apps/site/controllers/BaseController.php
-
- */
-
 abstract class BaseController extends AppInit
 
 {
