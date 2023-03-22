@@ -10,4 +10,8 @@ Router::site(function() {
 	});
 	
 	Router::get('/', 'HomeController@index', 'home');
+
+	Router::get('/query/{id:i}/edit/{name:s}', 'HomeController@pageQuery', 'pageQuery');
+
+	Router::get('/form', 'HomeController@form', 'form');
 });

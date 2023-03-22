@@ -21,9 +21,9 @@ class HelperLoader
     		}
     		return true;
     	} else {
-            $helperFullPath = PATH_SYSTEM . '/helper/' . $helperName . '.php';
+            $helperFullPath = PATH_SYSTEM . "/helper/$helperName.php";
             if ( !file_exists($helperFullPath) ){
-                throw new Exception('File does not exist: ' . $helperFullPath);
+                throw new Exception("File does not exist: $helperFullPath");
             }
             
 			include_once $helperFullPath;

@@ -6,10 +6,9 @@ if (!function_exists('is_login_user')) {
 	}
 }
 
-if (!function_exists('root_url')) {
-	function root_url() {
-		$protocal = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
-		return $protocal .'://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+if (!function_exists('home_url')) {
+	function home_url() {
+		return ROOT_URL;
 	}
 }
 
@@ -346,7 +345,7 @@ if (!function_exists('old')) {
 
 if (!function_exists('arr_to_obj')) {
 	function arr_to_obj($data = array()) {
-		return json_decode(json_encode($data));
+		return json_decode(json_encode($data, JSON_FORCE_OBJECT));
 	}
 }
 
@@ -409,5 +408,61 @@ if (!function_exists('config')) {
 		}
 
 		return isset($configArr[$key]) ? $configArr[$key] : '';
+	}
+}
+
+/**
+ * render view php
+ */
+if (!function_exists('render')) {
+	function render($viewName, $data = array(), $returnView = false) {
+        $shareData = SessionApp::getShareData();
+        if ( !empty($shareData) ) {
+            extract($shareData);
+        }
+        
+        if ( !empty($data) ) {
+            extract($data);
+        }
+
+        if ( strpos($viewName, ':') !== false) {
+            $viewName = explode(':', $viewName);
+            $site = $viewName[0]; 
+			$layout = $viewName[1]; 
+            $pathChildPage = str_replace('.', '/', $viewName[2]) . '.php';
+        } else {
+            $layout = str_replace('.', '/', $viewName);
+        }
+        
+        $viewFullPath = $this->pathTemplate . "/views/$layout.php";
+        if ( !file_exists($viewFullPath) ) {
+            throw new Exception("File does not exist: $viewFullPath");
+        }
+
+        if (isset($pathChildPage)) {
+            ob_start();
+            require_once $this->pathTemplate . "/views/$pathChildPage";
+            $html_child_page = ob_get_contents();
+            ob_end_clean();
+        }
+        
+        ob_start();
+        require_once $viewFullPath;
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        if ( !is_error_app() ) {
+            if ($returnView) {
+                return $content;
+            }
+            echo $content;
+        }
+        SessionApp::removeMSG();
+    }
+}
+
+if (!function_exists('route')) {
+	function route($alias, $params = array()) {
+		return AppRouter::name($alias, $params);
 	}
 }

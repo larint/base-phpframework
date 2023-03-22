@@ -31,9 +31,9 @@ class ModelLoader
             $this->setShareData();
     		return true;
     	} else {
-    		$modelFullPath = $this->pathModel . '/models/' . $modelName . '.php';
+    		$modelFullPath = $this->pathModel . "/models/$modelName.php";
             if ( !file_exists($modelFullPath) ) {
-                throw new Exception('File does not exist: ' . $modelFullPath);
+                throw new Exception("File does not exist: $modelFullPath");
             }
 			include_once $modelFullPath;
 

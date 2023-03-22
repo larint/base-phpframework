@@ -25,9 +25,9 @@ class LibraryLoader
     		}
     		return true;
     	} else {
-            $libraryFullPath = PATH_SYSTEM . '/library/' . $libraryName . '.php';
+            $libraryFullPath = PATH_SYSTEM . "/library/$libraryName.php";
             if ( !file_exists($libraryFullPath) ){
-                throw new Exception('File does not exist: ' . $libraryFullPath);
+                throw new Exception("File does not exist: $libraryFullPath");
             }
 
     		$objName = $libraryName;

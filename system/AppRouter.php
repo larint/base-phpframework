@@ -56,14 +56,14 @@ class AppRouter {
         // get the closest group name
         $lastElePath = self::lastElePath($path, 1);
 
-        self::get($path, $handler . '@index', $lastElePath . '.index');
-        self::get($path . '/create', $handler . '@create', $lastElePath . '.create');
-        self::get($path . '/show/{id:i}', $handler . '@show', $lastElePath . '.show');
-        self::get($path . '/edit/{id:i}', $handler . '@edit', $lastElePath . '.edit');
-        self::post($path . '/store', $handler . '@store', $lastElePath . '.store');
-        self::put($path . '/update', $handler . '@update', $lastElePath . '.update');
-        self::delete($path . '/delete', $handler . '@delete', $lastElePath . '.delete');
-        self::get($path . '/delete/{id:i}', $handler . '@delete', $lastElePath . '.delete_get');
+        self::get($path, "$handler@index",  "$lastElePath.index");
+        self::get("$path/create", "$handler@create", "$lastElePath.create");
+        self::get("$path/show/{id:i}", "$handler@show", "$lastElePath.show");
+        self::get("$path/edit/{id:i}", "$handler@edit", "$lastElePath.edit");
+        self::post("$path/store", "$handler@store", "$lastElePath.store");
+        self::put("$path/update", "$handler@update", "$lastElePath.update");
+        self::delete("$path/delete", "$handler@delete", "$lastElePath.delete");
+        self::get("$path/delete/{id:i}", "$handler@delete", "$lastElePath.delete_get");
     }
 
     public static function any($path, $handler, $alias = null){
@@ -117,11 +117,12 @@ class AppRouter {
             }
             
             if ( in_array($requestMethod, array_diff(array_keys(self::$routes), ['GET'])) ) {
-                $args = isset($_POST) ? json_decode(json_encode($_POST)) : null;
+                $args = isset($_POST) ? json_decode(json_encode($_POST, JSON_FORCE_OBJECT)) : null;
             }
             // action
             if( is_string($handler) && strpos($handler, '@') ){
                 list($controller, $action) = explode('@', $handler); 
+                $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
                 return ['controller' => $controller, 'action' => $action, 'args' => $args];
             }
 
@@ -166,7 +167,7 @@ class AppRouter {
 
             if ( isset($args) && !empty($args) ) {
                 $controllerObject->{$action}($args);
-            } else {          
+            } else {
                 $controllerObject->{$action}();
             }
         }
@@ -179,15 +180,33 @@ class AppRouter {
                 $aliasRoute = $route[$routeName][self::$aliasRouteKey];
                 if ( $alias == $aliasRoute ) {
                     if ( self::isRouteParams($routeName) ) {
-                        $keyPattern = array_keys(self::$patterns);
+                        if (!is_array($params)) {
+                            throw new Exception("Parameter must be array.");
+                        }
+                        if (count($params) == 0) {
+                            throw new Exception("$routeName has not declared the parameters passed to the router.");
+                        }
+                        preg_match_all(self::REGVAL, $routeName, $matchArgs);
+                        if (count($matchArgs[0]) != count($params)) {
+                            throw new Exception("Router $routeName requires ".count($matchArgs[0])." parameters to pass.");
+                        }
                         $i = 0;
                         $routeWithParam = preg_replace_callback(self::REGVAL, function($matches) use($params, &$i) {
-                            return $params[$i++];
+                            if (isset($matches[0])) {
+                                $typeParam = explode(':', trim($matches[0], "{}"))[1];
+                                $pattern = self::$patterns[$typeParam];
+                                preg_match("/$pattern/", $params[$i], $mArg);
+                                if (count($mArg) == 0) {
+                                    throw new Exception("Invalid parameter type ". $matches[0]);
+                                }
+                                return $params[$i++];
+                            }
+                            throw new Exception("Invalid parameter type ". $matches[0]);
                         }, $routeName);
                         return ROOT_URL . $routeWithParam;
                     } else {
                         if ( count($params) > 0 ) {
-                            throw new Exception($routeName . " no parameters required");
+                            throw new Exception("Router $routeName no parameters required/");
                         }
                         return ROOT_URL . $routeName;
                     }
@@ -207,7 +226,6 @@ class AppRouter {
 
     private static function getInfoRouter($requestUri, $routeName){
         $routeWithReg = self::parseRegexRouter($routeName);
-
         $regUri = explode('/', $routeName);
         $regReal = array_replace($regUri, explode('/', $requestUri) );
         $args = array_diff( $regReal, $regUri );
@@ -228,11 +246,10 @@ class AppRouter {
 
     private static function parseRegexRouter($routeName){
         $routeWithReg = preg_replace_callback(self::REGVAL, function($matches) {
-            $patterns = self::$patterns;
             $matches[0] = str_replace(['{', '}'], '', $matches[0]);
             $pattern = explode(':', $matches[0])[1];
-            if( in_array($pattern, array_keys($patterns)) ){
-                return $patterns[$pattern];
+            if( in_array($pattern, array_keys(self::$patterns)) ){
+                return self::$patterns[$pattern];
             }
 
         }, $routeName);
