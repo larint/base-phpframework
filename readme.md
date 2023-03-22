@@ -1,36 +1,44 @@
 # base-phpframwork
+Khung sườn php dùng để xây dựng website.
 
-Simple framework for php, lightweight configuration to develop websites.
+## Sử dụng tag trong php
+Để include page php dùng thẻ __@include__ trong đó __partials.footer__ là đường dẫn cách nhau bằng dấu chấm
+```
+@include partials.footer
+```
+Sử dụng khai báo khối trong trang con và layout chính, cú pháp có dấu __@xxx__  ở trước. __xxx__ là tên bất kỳ.
 
-## Installation
+Ví  dụ @main_content, @style được khai báo trong trong layout chính
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+```
+<html lang="en">
+    <head>
+    @style
+    </head>
+    <body>
+        @include partials.header
+        <div class="container">
+            @main_content
+            @include partials.footer
+        </div>
+    </body>
+</html>
+```
+lúc này trong trang con phải khai báo khối trong thẻ cùng tên và kết thúc bằng thẻ @end_xxx , __xxx__ trùng tên với tên khối bắt đầu.
+```
+@style
+<style>
+    html {
+        font-size: 14px;
+    }
+</style>
+@end_style
 
-```bash
-pip install foobar
+@main_content
+<h1>nội dung trang con</h1>
+@end_main_content
 ```
 
-## Usage
-
-```python
-import foobar
-
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
-```
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
 
 ## License
 
