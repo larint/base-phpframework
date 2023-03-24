@@ -27,7 +27,7 @@ class AppRouter {
     private static $aliasRouteKey = 'alias';
 
     private static $request = REQUEST_SITE; // check is a site or admin request
-
+    const DEFAULT_CONTROLLERS = ['TokenController'];
     const REGVAL = '/({.+?})/';
     const METHOD_NOT_FOUND = 1;
     const ROUTER_NOT_FOUND = 2;
@@ -138,6 +138,7 @@ class AppRouter {
 
     public static function run()
     {
+        self::setDefaultRouter();
         $runs = self::filterControler();
 
         if ( $runs == self::METHOD_NOT_FOUND || $runs == self::ROUTER_NOT_FOUND || is_array($runs) ) {
@@ -152,9 +153,15 @@ class AppRouter {
             $pathApp = self::isRequestAdmin() ? PATH_ADMIN  : PATH_SITE;
             // Include controller 
             include_once PATH_SYSTEM . '/core/AppInit.php';
-            include_once "$pathApp/controllers/BaseController.php";
-            include_once "$pathApp/controllers/$controller.php";
-
+            
+            if (in_array($controller, self::DEFAULT_CONTROLLERS)) {
+                include_once PATH_SYSTEM . "/core/controllers/BaseController.php";
+                include_once PATH_SYSTEM . "/core/controllers/$controller.php";
+            } else {
+                include_once "$pathApp/controllers/BaseController.php";
+                include_once "$pathApp/controllers/$controller.php";
+            }
+            
             if ( !class_exists($controller) ){
                 throw new Exception('Class ' . $controller . ' not exists');
             }
@@ -165,6 +172,7 @@ class AppRouter {
                 throw new Exception("Action $action not exist in $controller");
             }
 
+            SessionApp::action($action);
             if ( isset($args) && !empty($args) ) {
                 $controllerObject->{$action}($args);
             } else {
@@ -206,7 +214,7 @@ class AppRouter {
                         return ROOT_URL . $routeWithParam;
                     } else {
                         if ( count($params) > 0 ) {
-                            throw new Exception("Router $routeName no parameters required/");
+                            throw new Exception("Router $routeName no parameters required");
                         }
                         return ROOT_URL . $routeName;
                     }
@@ -281,7 +289,7 @@ class AppRouter {
 
     private static function validateTokenPOST() {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
-   
+
         if ($requestMethod == 'POST') {
             if ( !isset($_POST['_token']) || empty($_POST['_token']) || !isset($_COOKIE['_token']) ) {
                 self::redirect('tokenExpired');
@@ -314,20 +322,14 @@ class AppRouter {
         die();
     }
 
-    public static function redirectBack($msg = array()) {
-        if ( is_array($msg) && count($msg) > 0 ) {
-            $type = key($msg);
-            SessionApp::setMSG($msg[$type], $type);
-            SessionApp::setTypeMSG($msg);
-        }
-        
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
-        die();
-    }
-
     public static function lastElePath($url, $index) {
         $url = rtrim($url, '/');
         $tokens = explode('/', $url);
         return $tokens[sizeof($tokens)-$index];
     }
+
+    private static function setDefaultRouter() {
+        self::get('/token-expired', 'TokenController@tokenExpired', 'tokenExpired');
+    }
+
 }

@@ -20,9 +20,4 @@ class HomeController extends BaseController
         $this->view->render('pages.query_string', compact('params'));
     }
 
-    public function form($request)
-    {
-        $params = $request;   
-        $this->view->render('pages.contact', compact('params'));
-    }
 }

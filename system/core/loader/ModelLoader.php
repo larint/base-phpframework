@@ -5,6 +5,7 @@ class ModelLoader
 
     public function __construct($request)
     {
+        $this->request = $request;
         $this->pathModel = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
     }
 
@@ -18,6 +19,9 @@ class ModelLoader
     }
 
     public function load($loadAll, $modelName = null) {
+        // if controler in system then noneed load model
+		if ($this->request == REQUEST_SYSTEM) return true;
+
         include_once PATH_SYSTEM . '/core/crud/DBCRUD.php';
         include_once PATH_SYSTEM . '/core/crud/Model.php';
     	if ( $loadAll ) {

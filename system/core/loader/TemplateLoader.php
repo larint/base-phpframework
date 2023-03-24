@@ -6,7 +6,14 @@ class TemplateLoader
 
     public function __construct($request)
     {
-        $this->pathView = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
+        $this->request = $request;
+        if ($request == REQUEST_ADMIN) {
+            $this->pathView = PATH_VIEW_ADMIN;
+        } else if ($request == REQUEST_SITE) {
+            $this->pathView = PATH_VIEW_SITE;
+        } else if ($request == REQUEST_SYSTEM) {
+            $this->pathView = PATH_VIEW_SYSTEM;
+        }
     }
 
     /**
@@ -22,9 +29,9 @@ class TemplateLoader
         if ( !empty($data) ) {
             extract($data);
         }
-
+        
         $childPath = str_replace('.', '/', $viewName);
-        $fullChildPath = $this->pathView . "/views/$childPath.php";
+        $fullChildPath = $this->pathView . "/$childPath.php";
         if (!file_exists($fullChildPath)) {
             throw new Exception("File template does not exist: $fullChildPath");
         }
@@ -35,7 +42,7 @@ class TemplateLoader
         ob_end_clean();
 
         $layoutPath = $this->filterLayoutExtend($childPage, $fullChildPath);
-        $layoutPath = $this->pathView . "/views/$layoutPath.php";
+        $layoutPath = $this->pathView . "/$layoutPath.php";
         $layoutPage = '';
         if (file_exists($layoutPath) ) {
             ob_start();
@@ -113,7 +120,7 @@ class TemplateLoader
                 $tag = $match[0][$i];
                 $path = $match[1][$i];
                 $pathTemplate = str_replace('.', '/', $path);
-                $pathTemplate = $this->pathView . "/views/$pathTemplate.php";
+                $pathTemplate = $this->pathView . "/$pathTemplate.php";
                 if (!file_exists($pathTemplate)) {
                     throw new Exception("File template does not exist: $pathTemplate");
                 }

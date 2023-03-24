@@ -14,6 +14,6 @@ require_once PATH_SYSTEM . '/Debug.php';
 require_once PATH_SYSTEM . '/AppRouter.php';
 
 // load route app
-require_once PATH_APP . '/routes.php';
+require_once PATH_APP . '/route.php';
 
 App::run();

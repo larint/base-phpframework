@@ -21,6 +21,10 @@ class SessionApp
 		unset($_SESSION[$key]);
 	}
 
+	public static function all() {
+		return $_SESSION;
+	}
+
 	public static function removeMsg() {
 		self::remove('error');
 		self::remove('msg');
@@ -74,5 +78,14 @@ class SessionApp
 
 	public static function removeUser(){
 		self::remove('user');
+	}
+
+	public static function action($value = ''){
+		if (empty($value)) {
+			$action = self::get('action');
+			self::remove('action');
+			return $action;
+		}
+		self::set('action', $value);
 	}
 }

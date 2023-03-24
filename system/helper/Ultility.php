@@ -1,4 +1,36 @@
 <?php
+/**
+ * LOG
+ */
+if (!function_exists('logs')) {
+	function logs($msg, $filename) {
+        $msg = is_array($msg) ? json_encode($msg) : $msg;
+		$time = date("h:m:s d/m/Y", time());
+		$path =  PATH_SYSTEM . "/storage/log";
+		if (!file_exists($path)) {
+			mkdir($path, 0777, true);
+		}
+		error_log($time.' : '. $msg . PHP_EOL, 3, "$path/$filename");
+	}
+}
+
+if (!function_exists('log_info')) {
+	function log_info($msg) {
+		logs($msg, 'info.log');
+	}
+}
+
+if (!function_exists('log_db')) {
+	function log_db($msg) {
+		logs($msg, 'db.log');
+	}
+}
+
+if (!function_exists('log_error')) {
+	function log_error($msg) {
+		logs($msg, 'error.log');
+	}
+}
 
 if (!function_exists('is_login_user')) {
 	function is_login_user() {
@@ -147,31 +179,6 @@ if (!function_exists('is_error_app')) {
 	function is_error_app()
 	{
 		return empty(error_get_last()) ? false : true;
-	}
-}
-
-if (!function_exists('log')) {
-	function log($msg, $filename) {
-		$time = date("h:m:s d/m/Y", time());
-		error_log($time.' : '. $msg . PHP_EOL, 3, PATH_SYSTEM . "/log/$filename");
-	}
-}
-
-if (!function_exists('log_info')) {
-	function log_info($msg) {
-		log($msg, 'info.log');
-	}
-}
-
-if (!function_exists('log_db')) {
-	function log_db($msg) {
-		log($msg, 'db.log');
-	}
-}
-
-if (!function_exists('log_error')) {
-	function log_error($msg) {
-		log($msg, 'error.log');
 	}
 }
 
@@ -349,21 +356,6 @@ if (!function_exists('arr_to_obj')) {
 	}
 }
 
-if (!function_exists('redirect_back')) {
-	function redirect_back() {
-		header('Location: ' . $_SERVER['HTTP_REFERER']);
-		die();
-	}
-}
-
-if (!function_exists('redirect')) {
-	function redirect($url, $statusCode = 303)
-	{
-		header('Location: ' . $url, false, $statusCode);
-		die();
-	}
-}
-
 if (!function_exists('current_url')) {
 	function current_url() {
 		return $_SERVER['REQUEST_URI'];
@@ -411,58 +403,29 @@ if (!function_exists('config')) {
 	}
 }
 
-/**
- * render view php
- */
-if (!function_exists('render')) {
-	function render($viewName, $data = array(), $returnView = false) {
-        $shareData = SessionApp::getShareData();
-        if ( !empty($shareData) ) {
-            extract($shareData);
-        }
-        
-        if ( !empty($data) ) {
-            extract($data);
-        }
-
-        if ( strpos($viewName, ':') !== false) {
-            $viewName = explode(':', $viewName);
-            $site = $viewName[0]; 
-			$layout = $viewName[1]; 
-            $pathChildPage = str_replace('.', '/', $viewName[2]) . '.php';
-        } else {
-            $layout = str_replace('.', '/', $viewName);
-        }
-        
-        $viewFullPath = $this->pathTemplate . "/views/$layout.php";
-        if ( !file_exists($viewFullPath) ) {
-            throw new Exception("File does not exist: $viewFullPath");
-        }
-
-        if (isset($pathChildPage)) {
-            ob_start();
-            require_once $this->pathTemplate . "/views/$pathChildPage";
-            $html_child_page = ob_get_contents();
-            ob_end_clean();
-        }
-        
-        ob_start();
-        require_once $viewFullPath;
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        if ( !is_error_app() ) {
-            if ($returnView) {
-                return $content;
-            }
-            echo $content;
-        }
-        SessionApp::removeMSG();
-    }
-}
-
 if (!function_exists('route')) {
 	function route($alias, $params = array()) {
 		return AppRouter::name($alias, $params);
+	}
+}
+
+if (!function_exists('redirect_back')) {
+	function redirect_back($msg = array()) {
+		if ( is_array($msg) && count($msg) > 0 ) {
+			$type = key($msg);
+			$action = SessionApp::action();
+			SessionApp::set($action, $msg);
+		}
+		
+		header('Location: ' . $_SERVER['HTTP_REFERER']);
+		die();
+	}
+}
+
+if (!function_exists('redirect')) {
+	function redirect($url, $statusCode = 303)
+	{
+		header('Location: ' . $url, false, $statusCode);
+		die();
 	}
 }

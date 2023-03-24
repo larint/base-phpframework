@@ -11,14 +11,16 @@ define('PATH_PUBLIC', PATH_ROOT . '/public');
 define('PATH_APP', PATH_ROOT . '/app');
 define('PATH_SITE', PATH_APP . '/site');
 define('PATH_ADMIN', PATH_APP . '/admin');
-define('VIEW_ADMIN', PATH_ADMIN . '/views');
-define('VIEW_SITE', PATH_SITE . '/views');
+define('PATH_VIEW_ADMIN', PATH_ADMIN . '/views');
+define('PATH_VIEW_SITE', PATH_SITE . '/views');
+define('PATH_VIEW_SYSTEM', PATH_SYSTEM . '/core/views');
 
 // default controller error used in AppRouter
 define('ERROR_CONTROLLER', 'ErrorController@index');
 
 define('REQUEST_ADMIN', 'admin');
 define('REQUEST_SITE', 'site');
+define('REQUEST_SYSTEM', 'system');
 
 if (!file_exists(PATH_ROOT . '/.env')) dd('.env system configuration file does not exist');
 Dotenv\Dotenv::createImmutable(PATH_ROOT)->load();

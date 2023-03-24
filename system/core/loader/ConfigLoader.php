@@ -4,7 +4,8 @@ class ConfigLoader
 {
 	public function __construct($request)
 	{
-        $this->pathConfig = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
+		$this->request = $request;
+		$this->pathConfig = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
 	}
 
     /**
@@ -12,7 +13,8 @@ class ConfigLoader
      * @param string $configName 
      */
     public function load($loadAll, $configName = null) {
-
+		// if controler in  system then noneed load config
+		if ($this->request == REQUEST_SYSTEM) return true;
     	if ( $loadAll ) {
     		$files = glob($this->pathConfig . '/config/*.php');
 
