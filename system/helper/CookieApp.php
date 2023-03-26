@@ -47,4 +47,13 @@ class CookieApp
     public static function get($name) {
         return isset($_COOKIE[$name]) ? $_COOKIE[$name] : '';
     }
+
+	public static function setToken($value) {
+        self::set('_token', $value, TIME_EXPIRE_TOKEN);
+    }
+
+	public static function getToken() {
+        return self::get('_token');
+    }
+	
 }

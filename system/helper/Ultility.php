@@ -32,6 +32,77 @@ if (!function_exists('log_error')) {
 	}
 }
 
+/**
+ * TOKEN
+ */
+if (!function_exists('csrf_token')) {
+	function csrf_token($length = 40) {
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen($characters);
+		$csrf_token = '';
+		for ($i = 0; $i < $length; $i++) {
+			$csrf_token .= $characters[rand(0, $charactersLength - 1)];
+		}
+		if (!CookieApp::getToken()) {
+			CookieApp::setToken($csrf_token);
+		}
+		return CookieApp::getToken();
+	}
+}
+
+if (!function_exists('input_hidden')) {
+	function input_hidden($name, $val = '') {
+		return '<input type="hidden" name="'.$name.'" value="'.$val.'">';
+	}
+}
+
+if (!function_exists('method_field')) {
+	function method_field($name) {
+		return '<input type="hidden" name="_method" value="'.$name.'">';
+	}
+}
+
+if (!function_exists('csrf_field')) {
+	function csrf_field() {
+		$csrf_token = csrf_token();
+		return '<input type="hidden" name="_token" value="'.$csrf_token.'">';
+	}
+}
+
+/**
+ * TIME
+ */
+
+ if (!function_exists('format_date')) {
+	function format_date($date, $format) {
+		$time = is_string($date) ? strtotime($date) : $date;
+		return date($format, $time);
+	}
+}
+
+if (!function_exists('current_time')) {
+	function current_time($format = 'Y-m-d H:i:s') {
+		return format_date(time(), $format);
+	}
+}
+
+if (!function_exists('current_date')) {
+	function current_date($format = 'Y-m-d') {
+		return format_date(time(), $format);
+	}
+}
+
+if (!function_exists('add_date')) {
+	function add_date($date, $nday = 0, $format = 'Y-m-d') {
+		return format_date("$date +$nday day", $format);
+	}
+}
+if (!function_exists('sub_date')) {
+	function sub_date($date, $nday = 0, $format = 'Y-m-d') {
+		return format_date("$date -$nday day", $format);
+	}
+}
+
 if (!function_exists('is_login_user')) {
 	function is_login_user() {
 		return SessionApp::has('user') ? true : false;
@@ -107,71 +178,12 @@ if (!function_exists('last_key_arr')) {
 	}
 }
 
-if (!function_exists('format_date')) {
-	function format_date($date, $format) {
-		return date($format, strtotime($date));
-	}
-}
-
-if (!function_exists('current_time')) {
-	function current_time() {
-		return date('Y-m-d H:i:s', time());
-	}
-}
-
-if (!function_exists('current_date')) {
-	function current_date() {
-		return date('Y-m-d', time());
-	}
-}
-
 if (!function_exists('contain_str')) {
 	function contain_str($findme, $str) {
 		if (empty($findme)) {
 			return false;
 		}
 		return strpos($str, $findme) !== false;
-	}
-}
-
-if (!function_exists('input_hidden')) {
-	function input_hidden($name, $val = '') {
-		return '<input type="hidden" name="'.$name.'" value="'.$val.'">';
-	}
-}
-
-if (!function_exists('method_field')) {
-	function method_field($name) {
-		return '<input type="hidden" name="_method" value="'.$name.'">';
-	}
-}
-
-if (!function_exists('csrf_field')) {
-	function csrf_field() {
-		$csrf_token = csrf_token();
-		if ( !isset($_COOKIE['_token']) ) {
-			CookieApp::set('_token', $csrf_token, TIME_EXPIRE_TOKEN);
-		} else {
-			$csrf_token = $_COOKIE['_token'];
-		}
-		return '<input type="hidden" name="_token" value="'.$csrf_token.'">';
-	}
-}
-
-if (!function_exists('csrf_token')) {
-	function csrf_token($length = 40) {
-		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$charactersLength = strlen($characters);
-		$csrf_token = '';
-		for ($i = 0; $i < $length; $i++) {
-			$csrf_token .= $characters[rand(0, $charactersLength - 1)];
-		}
-		if ( !isset($_COOKIE['_token']) ) {
-			CookieApp::set('_token', $csrf_token, TIME_EXPIRE_TOKEN);
-		} else {
-			$csrf_token = $_COOKIE['_token'];
-		}
-		return $csrf_token;
 	}
 }
 
@@ -342,17 +354,12 @@ if (!function_exists('is_digit')) {
 	}
 }
 
-if (!function_exists('old')) {
-	function old($key) {
-		$value = isset($_SESSION[$key]) ? $_SESSION[$key] : '';
-		unset($_SESSION[$key]);
-		return $value;
-	}
-}
-
 if (!function_exists('arr_to_obj')) {
-	function arr_to_obj($data = array()) {
-		return json_decode(json_encode($data, JSON_FORCE_OBJECT));
+	function arr_to_obj($data = array(), $forceObj = true) {
+		if ($forceObj) {
+			return json_decode(json_encode($data, JSON_FORCE_OBJECT));
+		}
+		return json_decode(json_encode($data));
 	}
 }
 
@@ -412,9 +419,7 @@ if (!function_exists('route')) {
 if (!function_exists('redirect_back')) {
 	function redirect_back($msg = array()) {
 		if ( is_array($msg) && count($msg) > 0 ) {
-			$type = key($msg);
-			$action = SessionApp::action();
-			SessionApp::set($action, $msg);
+			SessionApp::setMSG($msg);
 		}
 		
 		header('Location: ' . $_SERVER['HTTP_REFERER']);
@@ -422,10 +427,41 @@ if (!function_exists('redirect_back')) {
 	}
 }
 
-if (!function_exists('redirect')) {
-	function redirect($url, $statusCode = 303)
+if (!function_exists('redirect_url')) {
+	function redirect_url($url, $statusCode = 303)
 	{
 		header('Location: ' . $url, false, $statusCode);
 		die();
+	}
+}
+
+if (!function_exists('redirect_route')) {
+	function redirect_route($nameRoute, $msg = array(), $params = array(), $statusCode = 303) 
+	{
+		if ( is_array($msg) && count($msg) > 0 ) {
+			SessionApp::setMSG($msg);
+		}
+		
+		$route = route($nameRoute, $params);
+		header('Location: ' . $route, false, $statusCode);
+		die();
+	}
+}
+
+if (!function_exists('error')) {
+	function error($name = '')
+	{
+		$error = SessionApp::error();
+		if ($name) {
+			return isset($error[$name]) ? $error[$name] : '';
+		}
+		return $error;
+	}
+}
+
+if (!function_exists('old')) {
+	function old($key) {
+		$post = SessionApp::getPostRequest();
+		return isset($post[$key]) ? $post[$key] : '';
 	}
 }

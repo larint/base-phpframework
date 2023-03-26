@@ -79,6 +79,7 @@ class TemplateLoader
 
     private function renderSectionTag($layoutPage, $childPage)
     {
+        $childPage = str_replace('@csrf_field', csrf_field(), $childPage);
         preg_match_all("/@end_(.*)/i", $childPage, $matchTagName);
         if (isset($matchTagName[1])) {
             $matchTagNameUniq = array_unique(array_map(function($v) {
@@ -99,14 +100,15 @@ class TemplateLoader
         // check for undeclared tags in subpages
         $tagNotMatchPattern = implode('|', $this->tagNotMatch);
         preg_match_all("/@(((?!($tagNotMatchPattern)).)*)/i", $layoutPage, $matchExistTag);
-        
-        $matchExistTag = array_unique(array_filter($matchExistTag[0], function($v) {
-            return !empty($v) && $v != '@';
+        preg_match_all("/value\=\"(.*)@(.*)/i", $layoutPage, $matchInputValue);
+
+        // check input has @ email
+        $matchExistTag = array_unique(array_filter($matchExistTag[0], function($v) use ($matchInputValue) {
+            return !empty($v) && $v != '@' && !in_array(str_replace('@', '', $v), $matchInputValue[2]);
         }));
 
         if (count($matchExistTag) > 0) {
             $layoutPage = str_replace($matchExistTag, array_fill(0, count($matchExistTag), ''), $layoutPage);
-            
         }
         
         return !empty($layoutPage) ? $layoutPage : $childPage;

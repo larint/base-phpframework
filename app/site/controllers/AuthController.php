@@ -30,7 +30,7 @@ class AuthController extends BaseController
 
 			// luu session thong tin user dang nhap
 			$userLogin = $this->admins->findOnWhereAdminNoPass($username);
-			session::setUser($userLogin);
+			SessionApp::setUser($userLogin);
 
 			Router::redirect('dashboard');
 		} else if ( $user->ad_login_fail >= 5 ) {
@@ -54,33 +54,40 @@ class AuthController extends BaseController
         $this->view->render('pages.signup', compact('params'));
     }
 
-	private function doRegistry() {
-		AppRouter::redirectBack(['error' => ['Thông tin đăng nhập không đúng']]);
+	private function doRegistry($request) {
+		$error = [];
+		if (empty($request->email)) {
+			$error['email'] = 'Chưa nhập email!';
+		}
+		if (empty($request->password)) {
+			$error['password'] = 'Chưa nhập password!';
+		}
+		redirect_back(['error' => $error]);
 	}
 
 	private function doLogout() {
-		session::removeUser();
+		SessionApp::removeUser();
 		Router::redirect('loginAdmin');
 	}
 
 	public static function isLoginAmin() {
-		return session::has('user') ? true : false;
+		return SessionApp::has('user') ? true : false;
 	}
-
-	public function __call($method, $args) {
-        // $actionNoAuth mảng các action không cần xác thực
-        $actionNoAuth = ['login','doLogin'];
-        if ( !self::isLoginAmin() ) { 
-            if( !in_array($method, $actionNoAuth) ) Router::redirect('loginAdmin');
-        } else if ($method == 'login'){
-        	Router::redirect('dashboard');
-        }
-        call_user_func_array([$this, $method], $args);
-    }
 
 	// hàm để sinh một mật khẩu
 	public function genPass($pass) {
 		$hash_pass = hashPass($pass);
 		error_log($pass. ' : ' .$hash_pass . PHP_EOL, 3, 'hash_pass');
 	}
+
+	public function __call($method, $args) {
+        // $actionNoAuth mảng các action không cần xác thực
+        $actionNoAuth = ['login','doLogin', 'doRegistry', 'getRegistry'];
+        if ( !self::isLoginAmin() ) { 
+            if( !in_array($method, $actionNoAuth) ) redirect_route('loginAdmin');
+        } else if ($method == 'login'){
+        	redirect_route('home');
+        }
+        call_user_func_array([$this, $method], $args);
+    }
 }

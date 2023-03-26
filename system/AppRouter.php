@@ -92,7 +92,7 @@ class AppRouter {
 
     private static function filterControler() { 
         // check if the token is valid
-        self::validateTokenPOST();
+        self::validateToken();
 
         $requestMethod = self::getRequest();
         $requestUri = self::delLastSlashUri($_GET['url']);
@@ -172,7 +172,15 @@ class AppRouter {
                 throw new Exception("Action $action not exist in $controller");
             }
 
-            SessionApp::action($action);
+            // save action for post request
+            $requestMethod = $_SERVER['REQUEST_METHOD'];
+            if ( in_array($requestMethod, ['POST', 'PUT', 'DELETE']) ) {
+                SessionApp::action($action);
+                if (isset($args) && !empty($args) ) {
+                    SessionApp::setPostRequest((array)$args);
+                }    
+            }
+
             if ( isset($args) && !empty($args) ) {
                 $controllerObject->{$action}($args);
             } else {
@@ -287,12 +295,12 @@ class AppRouter {
         return false;
     }
 
-    private static function validateTokenPOST() {
+    private static function validateToken() {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-        if ($requestMethod == 'POST') {
-            if ( !isset($_POST['_token']) || empty($_POST['_token']) || !isset($_COOKIE['_token']) ) {
-                self::redirect('tokenExpired');
+        if ( in_array($requestMethod, ['POST', 'PUT', 'DELETE']) ) {
+            if ( !isset($_POST['_token']) || empty($_POST['_token']) || !isset($_COOKIE['_token']) || $_COOKIE['_token'] != $_POST['_token'] ) {
+                self::redirectRoute('tokenExpired');
             }
         }
         return true;
@@ -312,15 +320,16 @@ class AppRouter {
         return strlen($path) > 1 ? rtrim($path, '/') :$path;
     }
 
-    public static function redirect($nameRoute, $msg = array(), $params = array(), $statusCode = 303) {
-        if ( !empty($msg) ) {
-            SessionApp::setMSG($msg);
-        }
-        
-        $route = self::name($nameRoute, $params);
-        header('Location: ' . $route, false, $statusCode);
-        die();
-    }
+    private static function redirectRoute($nameRoute, $msg = array(), $params = array(), $statusCode = 303) 
+	{
+		if ( !empty($msg) ) {
+			SessionApp::setMSG($msg);
+		}
+		
+		$route = AppRouter::name($nameRoute, $params);
+		header('Location: ' . $route, false, $statusCode);
+		die();
+	}
 
     public static function lastElePath($url, $index) {
         $url = rtrim($url, '/');

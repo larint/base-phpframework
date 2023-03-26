@@ -39,7 +39,14 @@ lúc này trong trang con phải khai báo khối trong thẻ cùng tên và k�
 @end_main_content
 ```
 
-
+Sử dụng @csrf_field để chèn input token khi gửi form
+```
+@csrf_field
+```
+Một thẻ input tên token sẽ được tạo ra như dưới:
+```
+<input type="hidden" name="_token" value="HQf0LLhAST3CMRkYXk81o4bxNXXa92JDgvHTRKkl">
+```
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

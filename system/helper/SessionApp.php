@@ -26,14 +26,16 @@ class SessionApp
 	}
 
 	public static function removeMsg() {
-		self::remove('error');
-		self::remove('msg');
-		self::remove('type_msg');
+		$action = self::action();
+		self::remove('action');
 		self::remove('share_data');
+		self::remove('post_request');
+		self::remove($action);
 	}
 
-	public static function setMSG($value, $key = 'msg') {
-		self::set($key, $value);
+	public static function setMSG($value) {
+		$action = self::action();
+		self::set($action, $value);
 	}
 
 	public static function getMSG($key) {
@@ -41,22 +43,19 @@ class SessionApp
 		return empty($msg) ? [] : $msg;
 	}
 
-	public static function getTypeMSG() {
-		$type = self::get('type_msg');
-		if ($type == 'error') {
-			return self::$danger;
-		}
-		return $type;
+	public static function setPostRequest($value) {
+		unset($value['password']);
+		self::set('post_request', $value);
 	}
 
-	public static function has_error($name) {
-		$msg = self::getMSG('error');
-		return  ( !empty($msg) && array_key_exists($name, $msg) ) ? true : false;
+	public static function getPostRequest() {
+		return self::get('post_request');
 	}
 
-	public static function setTypeMSG($type) {
-		$t = is_array($type) ? $type['type'] : $type;
-		self::set('type_msg', $t);
+	public static function error() {
+		$action = self::action();
+		$msg = self::get($action);
+		return isset($msg['error']) ? $msg['error'] : '';
 	}
 
 	public static function setShareData($value) {
@@ -68,22 +67,9 @@ class SessionApp
 		return empty($msg) ? [] : $msg;
 	}
 
-	public static function setUser($value){
-		self::set('user', $value);
-	}
-
-	public static function user(){
-		return self::get('user');
-	}
-
-	public static function removeUser(){
-		self::remove('user');
-	}
-
 	public static function action($value = ''){
 		if (empty($value)) {
 			$action = self::get('action');
-			self::remove('action');
 			return $action;
 		}
 		self::set('action', $value);
