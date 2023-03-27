@@ -4,15 +4,16 @@ class Account extends Model
 {
 	protected $table = 'account';
     protected $fields = [
-        'loginName',
-        'password_hash',
-        'safecode',
-        'regDate',
-        'fone',
-        'pass2',
-        'cmnd',
+        'name',
         'email',
-        'ngua1'
+        'email_verified_at',
+        'password_display',
+        'password',
+        'is_super',
+        'remember_token',
+        'created_at',
+        'updated_at',
+		'deleted_at'
     ];
 
 	public function save($fields) {

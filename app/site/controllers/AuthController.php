@@ -4,7 +4,7 @@ class AuthController extends BaseController
 {
 	public function __construct() {
 		parent::__construct();
-		// $this->admins = new Admins; // khởi tạo model
+		$this->account = new Account; // khởi tạo model
 	}
 
 	private function login()
@@ -50,7 +50,15 @@ class AuthController extends BaseController
 
 	public function getRegistry($request)
     {
-        $params = $request;   
+        $data = $this->account->select(['id','name', 'email', 'password_display'])
+			->where([
+				'password_display' => '9999999999',
+				"deleted_at" => DBCRUD::IS_NULL
+			])
+			->order('id', 'DESC')
+			->get();
+		dd($data);
+
         $this->view->render('pages.signup', compact('params'));
     }
 
@@ -62,6 +70,7 @@ class AuthController extends BaseController
 		if (empty($request->password)) {
 			$error['password'] = 'Chưa nhập password!';
 		}
+		
 		redirect_back(['error' => $error]);
 	}
 

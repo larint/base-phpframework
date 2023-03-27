@@ -19,8 +19,39 @@ class TemplateLoader
     /**
      * @param string $viewName
      */
-    public function render($viewName, $data = array(), $returnView = false)
+    public function render($viewName, $data = array(), $return = false)
     {
+        $childPath = str_replace('.', '/', $viewName);
+        $pathFullView = $this->pathView . "/$childPath.php";
+        $pageHtml = $this->buildHtmlContent($pathFullView, $data);
+        if ( !is_error_app() ) {
+            if ($return) {
+                return $pageHtml;
+            }
+            echo $pageHtml;
+        }
+    }
+
+    /**
+     * @param string $pathView
+     * @param array $data
+     */
+    public function renderAny($pathFullView, $data = array(), $return = false)
+    {
+        $pageHtml = $this->buildHtmlContent($pathFullView, $data);
+        if ( !is_error_app() ) {
+            if ($return) {
+                return $pageHtml;
+            }
+            echo $pageHtml;
+        }
+    }
+
+    private function buildHtmlContent($pathFullView, $data = array()) {
+        if (!file_exists($pathFullView)) {
+            throw new Exception("File template does not exist: $pathFullView");
+        }
+
         $shareData = SessionApp::getShareData();
         if ( !empty($shareData) ) {
             extract($shareData);
@@ -30,18 +61,12 @@ class TemplateLoader
             extract($data);
         }
         
-        $childPath = str_replace('.', '/', $viewName);
-        $fullChildPath = $this->pathView . "/$childPath.php";
-        if (!file_exists($fullChildPath)) {
-            throw new Exception("File template does not exist: $fullChildPath");
-        }
-
         ob_start();
-        require_once $fullChildPath;
+        require_once $pathFullView;
         $childPage = ob_get_contents();
         ob_end_clean();
 
-        $layoutPath = $this->filterLayoutExtend($childPage, $fullChildPath);
+        $layoutPath = $this->filterLayoutExtend($childPage);
         $layoutPath = $this->pathView . "/$layoutPath.php";
         $layoutPage = '';
         if (file_exists($layoutPath) ) {
@@ -57,16 +82,11 @@ class TemplateLoader
         // rerender include if subpgae has @include tag
         $pageHtml = $this->renderIncludeTag($pageHtml);
 
-        if ( !is_error_app() ) {
-            if ($returnView) {
-                return $pageHtml;
-            }
-            echo $pageHtml;
-        }
         SessionApp::removeMSG();
+        return $pageHtml;
     }
 
-    private function filterLayoutExtend(&$childPage, $fullChildPath) {
+    private function filterLayoutExtend(&$childPage) {
         preg_match("/@extend (.*)/i", $childPage, $matchTag);
         if (isset($matchTag[1])) {
             $layoutPath = str_replace('.', '/', $matchTag[1]);
@@ -134,36 +154,5 @@ class TemplateLoader
             }
         }
         return $layoutPage;
-    }
-
-    /**
-     * @param string $pathView
-     * @param array $data
-     */
-    public function renderAny($pathFullView, $data = array())
-    {
-        $shareData = SessionApp::getShareData();
-        if ( !empty($shareData) ) {
-            extract($shareData);
-        }
-
-        if ( !empty($data) ) {
-            extract($data);
-        }
-
-        $pathFullView = "$pathFullView.php";
-
-        ob_start();
-        if ( !file_exists($pathFullView) ) {
-            throw new Exception("File does not exist: $pathFullView");
-        }
-        require_once $pathFullView;
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        if ( !is_error_app() ) {
-            echo $content;
-        }
-        SessionApp::removeMSG();
     }
 }

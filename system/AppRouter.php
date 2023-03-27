@@ -25,6 +25,7 @@ class AppRouter {
     private static $requestKey = 'request';
     private static $handlerKey = 'handler';
     private static $aliasRouteKey = 'alias';
+    private static $pathPrefix = '';
 
     private static $request = REQUEST_SITE; // check is a site or admin request
     const DEFAULT_CONTROLLERS = ['TokenController'];
@@ -46,10 +47,12 @@ class AppRouter {
     }
 
     public static function group($pathPrefix, $handler){
-        if ( substr($pathPrefix, 0, 1) != '/' ) {
-            throw new Exception('router name without the "/" character at the beginning');
+        self::$pathPrefix = $pathPrefix;
+        if ( substr(self::$pathPrefix , 0, 1) != '/' ) {
+            throw new Exception('Router name without the "/" character at the beginning');
         }
-        call_user_func($handler, $pathPrefix);
+        call_user_func($handler);
+        self::$pathPrefix = '';
     }
 
     public static function action($path, $handler) {
@@ -87,6 +90,7 @@ class AppRouter {
     }
 
     private static function addRoute($method, $path, $handler, $alias){
+        $path = self::$pathPrefix . $path;
         array_push(self::$routes[$method], [$path => [self::$handlerKey => $handler, self::$requestKey => self::$request, self::$aliasRouteKey => $alias ]]);
     }
 
@@ -177,6 +181,7 @@ class AppRouter {
             if ( in_array($requestMethod, ['POST', 'PUT', 'DELETE']) ) {
                 SessionApp::action($action);
                 if (isset($args) && !empty($args) ) {
+                    // save post data when submit form
                     SessionApp::setPostRequest((array)$args);
                 }    
             }

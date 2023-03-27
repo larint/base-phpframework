@@ -214,6 +214,13 @@ if (!function_exists('asset')) {
 	}
 }
 
+if (!function_exists('view_path')) {
+	function view_path($path) {
+		$path = str_replace('.', '/', $path);
+		return PATH_APP . "/$path.php";
+	}
+}
+
 if (!function_exists('vi_to_en')) {
 	function vi_to_en($str) {
 		$str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str);

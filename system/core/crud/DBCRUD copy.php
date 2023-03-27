@@ -4,8 +4,6 @@ abstract class DBCRUD
 {
 	protected $con;
 	private $numRowsEffect = 0;
-	const IS_NULL = 'IS NULL';
-	const IS_NOT_NULL = 'IS NOT NULL';
 
 	public function __construct()
 	{
@@ -316,6 +314,22 @@ abstract class DBCRUD
         return [];
 	}
 
+	protected function first() {
+		$sql = $this->genSelectQuery($bindParams);
+		$sql .= " limit ?,?";
+
+		$data = $this->onSelect(
+			$sql,
+            ['iii' => [1,0,1]]
+        );
+
+        if ( !is_bool($data) && count($data) == 1 ) {
+            return arr_to_obj($data[0]);
+        }
+
+        return null;
+    }
+
     protected function max($col) {
 		$data = $this->onSelect(
 			"select max($col) as $col from $this->table where ?", 
@@ -342,126 +356,18 @@ abstract class DBCRUD
         return arr_to_obj($data);
 	}
 	
-	public function select($fields = array()) {
-		$cols = count($fields) > 0 ? implode(',', $fields) : '*';
-		$this->query = "SELECT $cols FROM {$this->table}";
-		return $this;
-	}
-
-	public function where($fields = array()) {
-		$this->bindParams = [];
-		return $this->buildWhere($fields);
-	}
-
-	public function whereOr($fields = array()) {
-		$this->bindParams = [];
-		return $this->buildWhere($fields, '=', "OR");
-	}
-
-	public function whereLike($fields = array()) {
-		$this->bindParams = [];
-		return $this->buildWhere($fields, 'LIKE');
-	}
-
-	public function whereLikeOr($fields = array()) {
-		$this->bindParams = [];
-		return $this->buildWhere($fields, 'LIKE', 'OR');
-	}
-
-	public function order($cols, $type = 'ASC') {
-		$cols = str_replace(' ', '', $cols);
-		$this->query .= " ORDER BY $cols $type";
-		return $this;
-	}
-	
-	/**
-	 * $operator like, =, !=, <=, >=
-	 * $condition AND | OR
-	 */
-	private function buildWhere($fields = array(), $operator = '=', $condition = 'AND') {
-		$cols = implode(',', $fields);
-		$wheres = [];
-		$kBind = '';
-		$vBind = [];
-
-		foreach ($fields as $col => $value) {
-			if (in_array($value, [self::IS_NULL, self::IS_NOT_NULL])) {
-				$wheres[] = "$col $value";
-			} else {
-				$wheres[] = "$col $operator ?";
-				if (is_string($value)) {
-					$kBind .= 's';
-				} else if (is_numeric($value) || is_bool($value)) {
-					$kBind .= 'i';
-				} else if (is_float($value)) {
-					$kBind .= 'd';
-				}
-				$vBind[] = ($operator == 'LIKE') ? "%$value%" : $value;
-			}
-		}
-
-		$this->bindParams[$kBind] = $vBind;
-		$this->query .= " WHERE " . implode(" $condition ", $wheres);
-
-		return $this;
-	}
-
-	public function get($index = -1) {
-		if (!contain_str('WHERE', $this->query)) {
-			$this->where(['1' => 1]);
-		}
-
-		$stmt = $this->executeQuery($this->query, $this->bindParams);
-
-		if ( empty($stmt) ) return false;
-		$stmt->execute();
-
-		$meta = $stmt->result_metadata(); 
-        while ($field = $meta->fetch_field()) { 
-            $parameters[] = &${$field->name}; 
-            $nameVar[] = $field->name;
-        } 
-        call_user_func_array(array($stmt, 'bind_result'), $parameters); 
-        
-        $data = array();
-        while ($stmt->fetch()) {
-        	$row = array();
- 			foreach ($nameVar as $var_name) {
- 				$row[$var_name] = ${$var_name};
- 			}
- 			$data[] = $row;
+	protected function select($sql, $bindParams = array()) {
+		$matchTypeData = key($bindParams);
+		$data = $this->onSelect(
+			$sql,
+            [$matchTypeData => $bindParams[$matchTypeData]] 
+        );
+		
+        if ( !$data || count($data) == 0 ) {
+        	return [];
         }
-
-		$this->numRowsEffect = $stmt->num_rows;
-		/* free results */
-   		$stmt->free_result();
-		$stmt->close();
-		$max = count($data);
-		if ($index >= 0) {
-			if ($index >= $max ) {
-				throw new Exception("The data index exceeds the $max  element array size.");
-			}
-			return $data[$index];
-		}
-
-		return $data;
-	}
-
-	public function first() {
-		$data = $this->get();
-		return count($data) > 0 ? $data[0] : null;
-	}
-
-	public function last() {
-		$data = $this->get();
-		$max = count($data);
-		return $max > 0 ? $data[$max - 1] : null;
-	}
-
-	public function join($cols, $type = 'ASC') {
-		$cols = str_replace(' ', '', $cols);
-		$this->query .= " ORDER BY $cols $type";
-		return $this;
+        
+		return arr_to_obj($data);
 	}
 
 	protected function update($sql, $bindParams = array()) {

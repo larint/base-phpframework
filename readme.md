@@ -47,6 +47,18 @@ Một thẻ input tên token sẽ được tạo ra như dưới:
 ```
 <input type="hidden" name="_token" value="HQf0LLhAST3CMRkYXk81o4bxNXXa92JDgvHTRKkl">
 ```
+Sử dụng truy vấn select
+```
+$data = $this->account->select(['name', 'email', 'password_display']) // 
+			->whereOr([
+				'id' => 1,
+				"email" => "abc@gmail.com",
+                "deleted_at" => DBCRUD::IS_NULL
+			]) | whereLike | whereLikeOr
+			->order('id') | order('id', 'DESC') | order('id,name,email', 'DESC')
+			->get(index) | first() | last(); 
+```
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

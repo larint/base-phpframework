@@ -14,6 +14,7 @@ define('PATH_ADMIN', PATH_APP . '/admin');
 define('PATH_VIEW_ADMIN', PATH_ADMIN . '/views');
 define('PATH_VIEW_SITE', PATH_SITE . '/views');
 define('PATH_VIEW_SYSTEM', PATH_SYSTEM . '/core/views');
+define('PATH_VENDOR_VIEW', PATH_APP . '/vendor/views');
 
 // default controller error used in AppRouter
 define('ERROR_CONTROLLER', 'ErrorController@index');
