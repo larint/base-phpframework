@@ -50,16 +50,16 @@ class AuthController extends BaseController
 
 	public function getRegistry($request)
     {
-        $data = $this->account->select(['id','name', 'email', 'password_display'])
-			->where([
-				'password_display' => '9999999999',
-				"deleted_at" => DBCRUD::IS_NULL
-			])
-			->order('id', 'DESC')
-			->get();
-		dd($data);
 
-        $this->view->render('pages.signup', compact('params'));
+		$data = $this->account->destroySoft([
+			'name' => 'asd',
+			"email" => "acsa@gmail.com",
+			'password_display' => '12312312',
+			'password' => '12312312',
+			'is_super' => 2
+		]);
+
+        $this->view->render('pages.signup');
     }
 
 	private function doRegistry($request) {

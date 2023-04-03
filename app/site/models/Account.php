@@ -16,14 +16,6 @@ class Account extends Model
 		'deleted_at'
     ];
 
-	public function save($fields) {
-        $sql = $this->genInsertQuery($bindParams, $fields);
-        return $this->onInsert(
-            $sql,
-            ['ssissssss' => $bindParams]
-        );
-    }
-
 	public function findOnWhereAccount($username) {
 		$data = $this->findOnWhere('s', [
 				'loginName:=' => $username
