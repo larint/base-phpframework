@@ -252,7 +252,7 @@ $data = $this->account->update([
 			"name" => "abc",
 		]);
 
-hoặc với điều kiện sao sánh
+hoặc với điều kiện so sánh
 
 $data = $this->account->update([
 			'name' => 'zzzz',
