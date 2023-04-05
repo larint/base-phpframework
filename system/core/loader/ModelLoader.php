@@ -22,7 +22,13 @@ class ModelLoader
         // if controler in system then noneed load model
 		if ($this->request == REQUEST_SYSTEM) return true;
 
-        include_once PATH_SYSTEM . '/core/crud/DBCRUD.php';
+        if (DB_CONNECTION == 'mysql') {
+            include_once PATH_SYSTEM . '/core/crud/CRUDMysql.php';
+        } else if (DB_CONNECTION == 'sqlserver') {
+            include_once PATH_SYSTEM . '/core/crud/CRUDSqlServer.php';
+        } else {
+            throw new Exception("DB connection does not exist: " . DB_CONNECTION);
+        }
         include_once PATH_SYSTEM . '/core/crud/Model.php';
     	if ( $loadAll ) {
     		$files = glob($this->pathModel . '/models/*.php');

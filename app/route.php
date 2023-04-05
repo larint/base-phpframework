@@ -14,5 +14,5 @@ Router::site(function() {
 	
 
 	Router::get('/query/{id:i}/edit/{name:s}', 'HomeController@pageQuery', 'pageQuery');
-
+	Router::get('/read-data', 'HomeController@readData', 'readData');
 });

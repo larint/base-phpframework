@@ -8,7 +8,7 @@ function showError() {
 	if ( !empty($error) ) {
 		$time = date("h:m:s d/m/Y", time());
 		$error_msg = $error['message'] . $error['file'] .' line: '.$error['line'];
-		log($error_msg);
+		log_error($error_msg);
 
 		if ( !DEBUG ) {
 			echo '<h1 style="text-align: center;color: #bdbdbd; margin-top: 50px">Sorry! The system could not process your request.</h1>';

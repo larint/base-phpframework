@@ -30,6 +30,7 @@ date_default_timezone_set(isset($_ENV['TIMEZONE']) ? $_ENV['TIMEZONE'] : 'Asia/H
 define('APP_NAME', isset($_ENV['APP_NAME']) ? $_ENV['APP_NAME'] : "web name");
 define("DEBUG", isset($_ENV['DEBUG']) ? filter_var($_ENV['DEBUG'], FILTER_VALIDATE_BOOLEAN): false);
 define("TIME_EXPIRE_TOKEN", isset($_ENV['TIME_EXPIRE_TOKEN']) ? $_ENV['TIME_EXPIRE_TOKEN'] : '1h');
+define("DB_CONNECTION", isset($_ENV['DB_CONNECTION']) ? $_ENV['DB_CONNECTION'] : "mysql");
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : "localhost");
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : "root");
 define("DB_PASS", isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : "");

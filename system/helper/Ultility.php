@@ -3,8 +3,8 @@
  * LOG
  */
 if (!function_exists('logs')) {
-	function logs($msg, $filename) {
-        $msg = is_array($msg) ? json_encode($msg) : $msg;
+	function logs($msg, $extmsg, $filename) {
+        $msg = $extmsg . (is_array($msg) ? json_encode($msg) : $msg);
 		$time = date("h:m:s d/m/Y", time());
 		$path =  PATH_SYSTEM . "/storage/log";
 		if (!file_exists($path)) {
@@ -15,20 +15,20 @@ if (!function_exists('logs')) {
 }
 
 if (!function_exists('log_info')) {
-	function log_info($msg) {
-		logs($msg, 'info.log');
+	function log_info($msg, $extmsg = '') {
+		logs($msg, $extmsg, 'info.log');
 	}
 }
 
 if (!function_exists('log_db')) {
-	function log_db($msg) {
-		logs($msg, 'db.log');
+	function log_db($msg, $extmsg = '') {
+		logs($msg, $extmsg, 'db.log');
 	}
 }
 
 if (!function_exists('log_error')) {
-	function log_error($msg) {
-		logs($msg, 'error.log');
+	function log_error($msg, $extmsg = '') {
+		logs($msg, $extmsg, 'error.log');
 	}
 }
 
@@ -183,6 +183,8 @@ if (!function_exists('contain_str')) {
 		if (empty($findme)) {
 			return false;
 		}
+		$findme = strtolower($findme);
+		$str = strtolower($str);
 		return strpos($str, $findme) !== false;
 	}
 }

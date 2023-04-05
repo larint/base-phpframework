@@ -50,14 +50,7 @@ class AuthController extends BaseController
 
 	public function getRegistry($request)
     {
-
-		$data = $this->account->destroySoft([
-			'name' => 'asd',
-			"email" => "acsa@gmail.com",
-			'password_display' => '12312312',
-			'password' => '12312312',
-			'is_super' => 2
-		]);
+		$data = $this->account->findAll();
 
         $this->view->render('pages.signup');
     }

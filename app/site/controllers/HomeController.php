@@ -20,4 +20,11 @@ class HomeController extends BaseController
         $this->view->render('pages.query_string', compact('params'));
     }
 
+    public function readData($request)
+    {
+        $accounts = $this->account->findAll();
+        // dd($accounts);
+        $this->view->render('pages.read_data', compact('accounts'));
+    }
+    
 }
