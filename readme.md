@@ -304,6 +304,25 @@ _Câu truy vấn tương ứng:_
 ```
 INSERT INTO account (id,name,email,email_verified_at,password_display,password,is_super,remember_token,created_at,updated_at,deleted_at) VALUES (null,'asd','acs@gmail.com',null,'12312312','12312312',2,null,'2023-04-03 22:39:40','2023-04-03 22:39:40',null)
 ```
+#### Tạo một n dòng trong db
+```
+$data = $this->account->createBulk([
+			[
+				'name' => 'asd',
+				"email" => "asdsdff@gmail.com",
+				'password_display' => '12312312',
+				'password' => '12312312',
+				'is_super' => 2
+			],
+			[
+				'name' => 'sd',
+				"email" => "dfdf@gmail.com",
+				'password_display' => '12312312',
+				'password' => '12312312',
+				'is_super' => 2
+			]
+		]);
+```
 
 #### Tìm một dòng với điều kiện, nếu không có trong db thì sẽ tạo mới
 ```
