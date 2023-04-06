@@ -88,6 +88,7 @@ class TemplateLoader
 
     private function filterLayoutExtend(&$childPage) {
         preg_match("/@extend (.*)\r/i", $childPage, $matchTag);
+        preg_match("/@extend (.*)/i", $childPage, $matchTag);
         if (isset($matchTag[1])) {
             $layoutPath = str_replace('.', '/', $matchTag[1]);
             $tag = $matchTag[0];
@@ -136,11 +137,12 @@ class TemplateLoader
 
     private function renderIncludeTag($layoutPage)
     {
-        preg_match_all("/@include (.*)\r/i", $layoutPage, $match);
-        if (isset($match[1][0])) {
-            for ($i = 0; $i < count($match[1]); $i++) {  
-                $tag = $match[0][$i];
-                $path = $match[1][$i];
+        preg_match_all("/@include (.*)\r/i", $layoutPage, $matchTag);
+        preg_match_all("/@include (.*)/i", $layoutPage, $matchTag);
+        if (isset($matchTag[1][0])) {
+            for ($i = 0; $i < count($matchTag[1]); $i++) {  
+                $tag = $matchTag[0][$i];
+                $path = $matchTag[1][$i];
                 $pathTemplate = str_replace('.', '/', $path);
                 $pathTemplate = $this->pathView . "/$pathTemplate.php";
                 if (!file_exists($pathTemplate)) {

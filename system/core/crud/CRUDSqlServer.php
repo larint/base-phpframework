@@ -121,9 +121,13 @@ abstract class DBCRUD
         return $data;
     }
 
-    public function save($data = array())
+    public function create($data = array())
     {
-        array_unshift($this->fields, 'id');
+        $data['created_at'] = current_time();
+        $data['updated_at'] = current_time();
+        if (!in_array('id', $this->fields)) {
+            array_unshift($this->fields, 'id');
+        }
         $cols = implode(',', $this->fields);
 
         $typeColumn = $this->getTypeColumn();
@@ -143,8 +147,6 @@ abstract class DBCRUD
         $max = $this->select(['max(id) as id'])->first();
         $data = ['id' => $max->id + 1] + $data;
         $this->query = "INSERT INTO {$this->table} ($cols) VALUES ";
-        $data['created_at'] = current_time();
-        $data['updated_at'] = current_time();
         $this->buildInsert($data, $typeColumn);
         $stmt = $this->executeQuery($this->query, $this->bindInserts);
         if (empty($stmt)) {

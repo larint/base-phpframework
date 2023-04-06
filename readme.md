@@ -290,9 +290,9 @@ _Câu truy vấn tương ứng:_
 UPDATE account SET name = 'abc' WHERE id = 2 OR password_display = '123123'
 UPDATE account SET name = 'abc' WHERE id >= 2 OR password_display LIKE '%123123%'
 ```
-#### Save một dòng trong db
+#### Tạo một dòng trong db
 ```
-$data = $this->account->save([
+$data = $this->account->create([
 			'name' => 'asd',
 			"email" => "acs@gmail.com",
 			'password_display' => '12312312',
