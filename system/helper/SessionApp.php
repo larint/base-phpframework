@@ -58,15 +58,6 @@ class SessionApp
 		return isset($msg['error']) ? $msg['error'] : '';
 	}
 
-	public static function setShareData($value) {
-		self::set('share_data', $value);
-	}
-
-	public static function getShareData() {
-		$msg = self::get('share_data');
-		return empty($msg) ? [] : $msg;
-	}
-
 	public static function action($value = ''){
 		if (empty($value)) {
 			$action = self::get('action');

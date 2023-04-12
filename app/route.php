@@ -3,7 +3,7 @@ use AppRouter as Router;
 
 // router site
 Router::site(function() {
-	Router::get('/', 'HomeController@index', 'home');
+	Router::get('/', 'HomeController@index', 'home', ['auth']);
 
 	Router::group("/auth", function() {
 		Router::post("/doLogin", 'AuthController@doLogin', 'doLogin');

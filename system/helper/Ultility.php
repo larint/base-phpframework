@@ -474,3 +474,15 @@ if (!function_exists('old')) {
 		return isset($post[$key]) ? $post[$key] : '';
 	}
 }
+
+if (!function_exists('num_dot')) {
+	function num_dot($num) {
+		return number_format($num , 0, ',', '.');
+	}
+}
+
+if (!function_exists('string_dot')) {
+	function string_dot($str, $pos, $char = '.') {
+		return substr_replace($str, $char, $pos, 0);
+	}
+}

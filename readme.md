@@ -47,8 +47,37 @@ Một thẻ input tên token sẽ được tạo ra như dưới:
 ```
 <input type="hidden" name="_token" value="HQf0LLhAST3CMRkYXk81o4bxNXXa92JDgvHTRKkl">
 ```
+#### Truyền dữ liệu cho các view
+khai báo các biến cần truyền đi trong hàm pass() của class ViewComposer và dùng hàm passData() để khai báo truyền biến dữ liệu,
+_ví dụ như bên dưới: _
+```
+class ViewComposer extends ViewData
+{
+
+    public function pass()
+    {
+        $account = new Account;
+        $role = new Role;
+        $account = $account->select()->findAll();
+        $role = $role->select()->findAll();
+
+        $this->passData([
+            'pages.index',  /// mảng tên view và mảng dữ liệu
+            'pages.sign_up'
+        ], compact('account'));
+
+        $this->passData([
+            'pages.index', 
+            'pages.query_string'
+        ], compact('role'));
+    
+    }
+
+}
+```
+
 #### Sử dụng truy vấn select, cột khai báo không kèm toán tử thì mặc định sẽ là so sánh bằng =
-##### Só thể dùng whereOr hoặc whereLike, whereLikeOr, first , last như dưới
+##### Có thể dùng whereOr hoặc whereLike, whereLikeOr, first , last như dưới
 ```
 $data = $this->account->select(['name', 'email', 'password_display']) 
 			->where([

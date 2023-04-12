@@ -25,10 +25,11 @@ class AppRouter {
     private static $requestKey = 'request';
     private static $handlerKey = 'handler';
     private static $aliasRouteKey = 'alias';
+    private static $middleware = 'middleware';
     private static $pathPrefix = '';
 
     private static $request = REQUEST_SITE; // check is a site or admin request
-    const DEFAULT_CONTROLLERS = ['TokenController'];
+    const DEFAULT_CONTROLLERS = ['TokenController', 'ErrorController'];
     const REGVAL = '/({.+?})/';
     const METHOD_NOT_FOUND = 1;
     const ROUTER_NOT_FOUND = 2;
@@ -40,7 +41,7 @@ class AppRouter {
 
     public static function admin($pathPrefix, $handler){
         if ( substr($pathPrefix, 0, 1) != '/' ) {
-            throw new Exception('router name without the "/" character at the beginning');
+            throw new Exception('Router name without the "/" character at the beginning');
         }
         self::$request = REQUEST_ADMIN;
         call_user_func($handler, $pathPrefix);
@@ -73,8 +74,8 @@ class AppRouter {
         self::addRoute('ANY', $path, $handler, $alias);
     }
 
-    public static function get($path, $handler, $alias = null){
-        self::addRoute('GET', $path, $handler, $alias);
+    public static function get($path, $handler, $alias = null, $middleware = array()){
+        self::addRoute('GET', $path, $handler, $alias, $middleware);
     }
 
     public static function post($path, $handler, $alias = null){
@@ -89,9 +90,19 @@ class AppRouter {
         self::addRoute('DELETE', $path, $handler, $alias);
     }
 
-    private static function addRoute($method, $path, $handler, $alias){
+    private static function addRoute($method, $path, $handler, $alias, $middleware = []){
         $path = self::$pathPrefix . $path;
-        array_push(self::$routes[$method], [$path => [self::$handlerKey => $handler, self::$requestKey => self::$request, self::$aliasRouteKey => $alias ]]);
+        array_push(
+            self::$routes[$method], 
+            [
+                $path => [
+                    self::$handlerKey => $handler, 
+                    self::$requestKey => self::$request, 
+                    self::$aliasRouteKey => $alias,
+                    self::$middleware => $middleware,
+                ]
+            ]
+        );
     }
 
     private static function filterControler() { 
@@ -131,6 +142,7 @@ class AppRouter {
             }
 
             if( empty($args) ){
+                dd($args);
                 return $handler();
             }
 
@@ -151,8 +163,8 @@ class AppRouter {
                 $action = $runs['action'];
                 $args = $runs['args'];
             } else {
-                $controller = explode('@', ERROR_CONTROLLER)[0];
-                $action = explode('@', ERROR_CONTROLLER)[1];
+                $controller = 'ErrorController';
+                $action = 'notFound';
             }
             $pathApp = self::isRequestAdmin() ? PATH_ADMIN  : PATH_SITE;
             // Include controller 
@@ -186,6 +198,7 @@ class AppRouter {
                 }    
             }
 
+          
             if ( isset($args) && !empty($args) ) {
                 $controllerObject->{$action}($args);
             } else {
@@ -344,6 +357,7 @@ class AppRouter {
 
     private static function setDefaultRouter() {
         self::get('/token-expired', 'TokenController@tokenExpired', 'tokenExpired');
+        self::get('/notfound', 'ErrorController@notFound', 'notFound');
     }
 
 }

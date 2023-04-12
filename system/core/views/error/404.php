@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>404 - Không tìm thấy trang bạn yêu cầu!</title>
+    <title>404 - The page you requested was not found!</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
     <style type="text/css">
@@ -69,11 +69,11 @@
     <body>
         <div class="wrap">
             <div class="logo">
-                <h1>Oh! Không tìm thấy trang bạn yêu cầu!</h1>
+                <h1>404 - The page you requested was not found!</h1>
                 <img src="/public/image/404.png" alt="" />
                 <!---728x90-->
                 <div class="sub">
-                    <p><a href="/">Quay lại</a></p>
+                    <p><a href="<?= route('home') ?>">Home</a></p>
                 </div>
             </div>
         </div>
