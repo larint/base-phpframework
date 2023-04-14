@@ -4,5 +4,8 @@
         <a class="p-2 text-dark" href="<?= route('pageQuery', [123, 'dung']) ?>">Query Url</a>
         <a class="p-2 text-dark" href="<?= route('readData') ?>">Read Data</a>
     </nav>
-    <a class="btn btn-outline-primary" href="<?= route('getRegistry') ?>">Sign up</a>
+    <a class="p-2 text-dark" href="<?= route('getRegistry') ?>">Sign up</a>
+    <?php if(Auth::user()): ?>
+    <a class="btn btn-outline-primary" href="<?= route('doLogout') ?>">Logout</a>
+    <?php endif; ?>
 </div>

@@ -22,11 +22,15 @@ class AppRouter {
         'f'    => '[a-zA-Z0-9]+\.[a-zA-Z]+', // file with extension, .html .php
     ];
 
+    private static $controller = 'controller';
     private static $requestKey = 'request';
     private static $handlerKey = 'handler';
     private static $aliasRouteKey = 'alias';
     private static $middleware = 'middleware';
+    private static $action = 'action';
+    private static $args = 'args';
     private static $pathPrefix = '';
+    
 
     private static $request = REQUEST_SITE; // check is a site or admin request
     const DEFAULT_CONTROLLERS = ['TokenController', 'ErrorController'];
@@ -56,41 +60,41 @@ class AppRouter {
         self::$pathPrefix = '';
     }
 
-    public static function action($path, $handler) {
+    public static function action($path, $handler, $middleware = array()) {
         // get the closest group name
         $lastElePath = self::lastElePath($path, 1);
 
-        self::get($path, "$handler@index",  "$lastElePath.index");
-        self::get("$path/create", "$handler@create", "$lastElePath.create");
-        self::get("$path/show/{id:i}", "$handler@show", "$lastElePath.show");
-        self::get("$path/edit/{id:i}", "$handler@edit", "$lastElePath.edit");
-        self::post("$path/store", "$handler@store", "$lastElePath.store");
-        self::put("$path/update", "$handler@update", "$lastElePath.update");
-        self::delete("$path/delete", "$handler@delete", "$lastElePath.delete");
-        self::get("$path/delete/{id:i}", "$handler@delete", "$lastElePath.delete_get");
+        self::get($path, "$handler@index", "$lastElePath.index", $middleware);
+        self::get("$path/create", "$handler@create", "$lastElePath.create", $middleware);
+        self::get("$path/show/{id:i}", "$handler@show", "$lastElePath.show", $middleware);
+        self::get("$path/edit/{id:i}", "$handler@edit", "$lastElePath.edit", $middleware);
+        self::post("$path/store", "$handler@store", "$lastElePath.store", $middleware);
+        self::put("$path/update", "$handler@update", "$lastElePath.update", $middleware);
+        self::delete("$path/delete", "$handler@delete", "$lastElePath.delete", $middleware);
+        self::get("$path/delete/{id:i}", "$handler@delete", "$lastElePath.delete_get", $middleware);
     }
 
-    public static function any($path, $handler, $alias = null){
-        self::addRoute('ANY', $path, $handler, $alias);
+    public static function any($path, $handler, $alias = null, $middleware = array()){
+        self::addRoute('ANY', $path, $handler, $alias, $middleware);
     }
 
     public static function get($path, $handler, $alias = null, $middleware = array()){
         self::addRoute('GET', $path, $handler, $alias, $middleware);
     }
 
-    public static function post($path, $handler, $alias = null){
-        self::addRoute('POST', $path, $handler, $alias);
+    public static function post($path, $handler, $alias = null, $middleware = array()){
+        self::addRoute('POST', $path, $handler, $alias, $middleware);
     }
 
-    public static function put($path, $handler, $alias = null){
-        self::addRoute('PUT', $path, $handler, $alias);
+    public static function put($path, $handler, $alias = null, $middleware = array()){
+        self::addRoute('PUT', $path, $handler, $alias, $middleware);
     }
 
-    public static function delete($path, $handler, $alias = null){
-        self::addRoute('DELETE', $path, $handler, $alias);
+    public static function delete($path, $handler, $alias = null, $middleware = array()){
+        self::addRoute('DELETE', $path, $handler, $alias, $middleware);
     }
 
-    private static function addRoute($method, $path, $handler, $alias, $middleware = []){
+    private static function addRoute($method, $path, $handler, $alias, $middleware = array()){
         $path = self::$pathPrefix . $path;
         array_push(
             self::$routes[$method], 
@@ -117,11 +121,11 @@ class AppRouter {
             return self::METHOD_NOT_FOUND;
         }
 
-        foreach (self::$routes[$requestMethod]  as $resource) {
+        foreach (self::$routes[$requestMethod] as $resource) {
             $args = []; 
             $routeName = key($resource); 
-            $handler = reset($resource[$routeName]); 
-
+            $handler = $resource[$routeName][self::$handlerKey];
+            $middleware = $resource[$routeName][self::$middleware];
             if( preg_match(self::REGVAL, $routeName) ){
                 list($args, $uri, $routeName) = self::getInfoRouter($requestUri, $routeName);  
             }
@@ -138,12 +142,12 @@ class AppRouter {
             if( is_string($handler) && strpos($handler, '@') ){
                 list($controller, $action) = explode('@', $handler); 
                 $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
-                return ['controller' => $controller, 'action' => $action, 'args' => $args];
+                return [ self::$controller => $controller, self::$action => $action, self::$args => $args, self::$middleware => $middleware];
             }
 
-            if( empty($args) ){
-                dd($args);
-                return $handler();
+            if( is_callable($handler) ){
+                $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
+                return [ self::$controller => null, self::$action => $handler, self::$args => $args, self::$middleware => $middleware];
             }
 
             return call_user_func_array($handler, $args);
@@ -159,16 +163,29 @@ class AppRouter {
 
         if ( $runs == self::METHOD_NOT_FOUND || $runs == self::ROUTER_NOT_FOUND || is_array($runs) ) {
             if ( is_array($runs) ) {
-                $controller = $runs['controller'];
-                $action = $runs['action'];
-                $args = $runs['args'];
+                $controller = $runs[self::$controller];
+                $action = $runs[self::$action];
+                $args = $runs[self::$args];
+                $middleware = $runs[self::$middleware];
             } else {
                 $controller = 'ErrorController';
                 $action = 'notFound';
+                $args = null;
+                $middleware = [];
             }
             $pathApp = self::isRequestAdmin() ? PATH_ADMIN  : PATH_SITE;
             // Include controller 
             include_once PATH_SYSTEM . '/core/AppInit.php';
+            
+            if ( is_callable($action) ) {
+                include_once PATH_SYSTEM . "/core/controllers/BaseController.php";
+                $baseController = new BaseController(self::$request);
+
+                // save action for post request
+                self::savePostRequest($action, $args);
+
+                return !empty($args) ? $action($args) : $action();
+            }
             
             if (in_array($controller, self::DEFAULT_CONTROLLERS)) {
                 include_once PATH_SYSTEM . "/core/controllers/BaseController.php";
@@ -177,7 +194,7 @@ class AppRouter {
                 include_once "$pathApp/controllers/BaseController.php";
                 include_once "$pathApp/controllers/$controller.php";
             }
-            
+
             if ( !class_exists($controller) ){
                 throw new Exception('Class ' . $controller . ' not exists');
             }
@@ -188,22 +205,37 @@ class AppRouter {
                 throw new Exception("Action $action not exist in $controller");
             }
 
-            // save action for post request
-            $requestMethod = $_SERVER['REQUEST_METHOD'];
-            if ( in_array($requestMethod, ['POST', 'PUT', 'DELETE']) ) {
-                SessionApp::action($action);
-                if (isset($args) && !empty($args) ) {
-                    // save post data when submit form
-                    SessionApp::setPostRequest((array)$args);
-                }    
+            foreach ($middleware as $middleClass) {
+                if ( !class_exists($middleClass) ){
+                    throw new Exception('Middleware name ' . $middleClass . ' not exists');
+                } 
+                $middleObj = new $middleClass;
+                $middleObj->handle($args);
             }
 
+            // save action for post request
+            self::savePostRequest($action, $args);
           
             if ( isset($args) && !empty($args) ) {
                 $controllerObject->{$action}($args);
             } else {
                 $controllerObject->{$action}();
             }
+        }
+    }
+
+    /**
+     * save action for post request
+     */
+    private static function savePostRequest($action, $args) {
+        // save action for post request
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        if ( in_array($requestMethod, ['POST', 'PUT', 'DELETE']) ) {
+            SessionApp::action($action);
+            if (isset($args) && !empty($args) ) {
+                // save post data when submit form
+                SessionApp::setPostRequest((array)$args);
+            }    
         }
     }
 

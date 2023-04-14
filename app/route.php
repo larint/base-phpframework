@@ -3,9 +3,10 @@ use AppRouter as Router;
 
 // router site
 Router::site(function() {
-	Router::get('/', 'HomeController@index', 'home', ['auth']);
+	Router::get('/', 'HomeController@index', 'home', ['Authenticated']);
 
 	Router::group("/auth", function() {
+		Router::get("/getLogin", 'AuthController@getLogin', 'getLogin', ['RedirectIfAuthenticated']);
 		Router::post("/doLogin", 'AuthController@doLogin', 'doLogin');
 		Router::get("/doLogout", 'AuthController@doLogout', 'doLogout');
 		Router::post("/doRegistry", 'AuthController@doRegistry', 'doRegistry');
@@ -13,6 +14,6 @@ Router::site(function() {
 	});
 	
 
-	Router::get('/query/{id:i}/edit/{name:s}', 'HomeController@pageQuery', 'pageQuery');
-	Router::get('/read-data', 'HomeController@readData', 'readData');
+	Router::get('/query/{id:i}/edit/{name:s}', 'HomeController@pageQuery', 'pageQuery', ['Authenticated']);
+	Router::get('/read-data', 'HomeController@readData', 'readData', ['Authenticated']);
 });

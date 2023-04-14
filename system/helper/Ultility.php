@@ -464,7 +464,8 @@ if (!function_exists('error')) {
 		if ($name) {
 			return isset($error[$name]) ? $error[$name] : '';
 		}
-		return $error;
+
+		return $error ? $error : [];
 	}
 }
 

@@ -8,12 +8,11 @@
 
  */
 
-abstract class BaseController extends AppInit
-
+class BaseController extends AppInit
 {
-	public function __construct() 
+	public function __construct($request = '') 
 	{
-		parent::__construct(REQUEST_SYSTEM);
+		parent::__construct($request ? $request : REQUEST_SYSTEM);
 	}
 
 	public function __destruct() {

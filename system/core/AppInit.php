@@ -17,6 +17,10 @@ abstract class AppInit
         $this->model = new ModelLoader($request);
         $this->model->load(true);
 
+        require_once PATH_SYSTEM . '/core/loader/MiddlewareLoader.php';
+        $middleware = new MiddlewareLoader($request);
+        $middleware->load();
+
         require_once PATH_SYSTEM . '/core/loader/TemplateLoader.php';
         $this->view = new TemplateLoader($request);
     }

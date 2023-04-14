@@ -1,9 +1,17 @@
-@extend layout
+@extend auth.layout
+
+@style
+<style>
+    .login {
+        width: 400px;
+    }
+</style>
+@end_style
 
 @main_content
-<div class="container">
-    <h4>Đăng ký</h4>
-    <form action="<?= route('doRegistry') ?>" method="POST">
+<div class="container login">
+    <h4>Đăng nhập</h4>
+    <form action="<?= route('doLogin') ?>" method="POST">
         @csrf_field
         <div class="form-group">
             <label for="exampleInputEmail1">Email address</label>
@@ -18,6 +26,11 @@
         <div class="form-check">
             <input type="checkbox" class="form-check-input" id="exampleCheck1">
             <label class="form-check-label" for="exampleCheck1">Remember me</label>
+        </div>
+        <div>
+            <?php foreach (error() as $k => $v): ?>
+                <small id="emailHelp" class="form-text text-danger"><?= is_numeric($k) ? $v : '' ?></small>
+            <?php endforeach; ?>
         </div>
         <div class="text-right">
             <button type="submit" class="btn btn-primary">Submit</button>
