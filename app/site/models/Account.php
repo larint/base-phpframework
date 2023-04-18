@@ -11,6 +11,8 @@ class Account extends Model
         'password',
         'is_super',
         'remember_token',
+        'token',
+        'expire',
         'created_at',
         'updated_at',
 		'deleted_at'

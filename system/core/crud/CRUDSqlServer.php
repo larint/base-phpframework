@@ -217,20 +217,20 @@ abstract class DBCRUD
             'id' => $id
         ]);
         $data = $this->get();
-        return count($data) > 0 ? $data[0] : arr_to_obj([]);
+        return count($data) > 0 ? $data[0] : null;
     }
 
     public function first()
     {
         $data = $this->get();
-        return count($data) > 0 ? $data[0] : arr_to_obj([]);
+        return count($data) > 0 ? $data[0] : null;
     }
 
     public function last()
     {
         $data = $this->get();
         $max = count($data);
-        return $max > 0 ? $data[$max - 1] : arr_to_obj([]);
+        return $max > 0 ? $data[$max - 1] : null;
     }
 
     // su dung voi bind_result

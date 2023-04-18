@@ -40,8 +40,8 @@ class CookieApp
     	setcookie($name, $value, $timeExpire, '/');
     }
 
-    public static function remove($name) {
-    	setcookie($name, null, -1);
+    public static function remove($name, $path = '/') {
+    	setcookie($name, null, -1, $path);
     }
 
     public static function get($name) {

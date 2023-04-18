@@ -35,14 +35,21 @@ if (!function_exists('log_error')) {
 /**
  * TOKEN
  */
-if (!function_exists('csrf_token')) {
-	function csrf_token($length = 40) {
+if (!function_exists('gen_token')) {
+	function gen_token($length = 40) {
 		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$charactersLength = strlen($characters);
-		$csrf_token = '';
+		$token = '';
 		for ($i = 0; $i < $length; $i++) {
-			$csrf_token .= $characters[rand(0, $charactersLength - 1)];
+			$token .= $characters[rand(0, $charactersLength - 1)];
 		}
+		return $token;
+	}
+}
+
+if (!function_exists('csrf_token')) {
+	function csrf_token($length = 40) {
+		$csrf_token = gen_token($length);
 		if (!CookieApp::getToken()) {
 			CookieApp::setToken($csrf_token);
 		}
@@ -97,6 +104,33 @@ if (!function_exists('add_date')) {
 		return format_date("$date +$nday day", $format);
 	}
 }
+
+if (!function_exists('add_currenttime')) {
+	function add_currenttime($timeSecond = 3600) { // default 1 hour
+		$part = [
+			
+		];
+		$time = time();
+		if (is_numeric($timeSecond)) {
+			$time += $timeSecond;
+		} else {
+			if (preg_match('/^(\d+)s$/m', $timeSecond, $match) && isset($match[1])) { //minute
+				$time += $match[1];
+			} elseif (preg_match('/^(\d+)m$/m', $timeSecond, $match) && isset($match[1])) { //minute
+				$time += $match[1] * 60;
+			} elseif (preg_match('/^(\d+)h$/m', $timeSecond, $match) && isset($match[1])) { //minute
+				$time += $match[1] * 60 * 60;
+			} elseif (preg_match('/^(\d+)d$/m', $timeSecond, $match) && isset($match[1])) { //minute
+				$time += $match[1] * 24 * 60 * 60;
+			} else {
+				throw new Exception("Format time invalid");
+			}
+		}
+		
+		return date('Y-m-d H:i:s', $time);
+	}
+}
+
 if (!function_exists('sub_date')) {
 	function sub_date($date, $nday = 0, $format = 'Y-m-d') {
 		return format_date("$date -$nday day", $format);
@@ -354,6 +388,27 @@ if (!function_exists('download_file')) {
 			fclose($newf);
 		}
 		return $nameFile . '.' . ext_file($url);
+	}
+}
+
+if (!function_exists('write_file')) {
+	function write_file($content, $file) {
+		if ( !file_exists($file) ) {
+			mkdir(dirname($file), 0777, true);
+		}
+
+		$myfile = fopen($file, "w") or die("Unable to open file!");
+		fwrite($myfile, $content);
+		fclose($myfile);
+	}
+}
+
+if (!function_exists('read_file')) {
+	function read_file( $file ) {
+		$myfile = fopen($file, "r") or die("Unable to open file!");
+		$txt = fread($myfile, filesize($file));
+		fclose($myfile);
+		return $txt;
 	}
 }
 

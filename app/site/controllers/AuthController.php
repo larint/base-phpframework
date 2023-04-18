@@ -30,8 +30,7 @@ class AuthController extends BaseController
 
 		if ( $user ) {
 			if ( password_verify($request->password, $user->password) ) {
-				$user->password = '';
-				Auth::set($user);
+				Auth::set($user, $request->remember ? true : false);
 				redirect_route('home');
 			}
 		} 
@@ -40,23 +39,6 @@ class AuthController extends BaseController
 
 	public function getRegistry($request)
     {
-		// $data = $this->account->createBulk([
-		// 	[
-		// 		'name' => 'asd',
-		// 		"email" => "asdsdff@gmail.com",
-		// 		'password_display' => '12312312',
-		// 		'password' => '12312312',
-		// 		'is_super' => 2
-		// 	],
-		// 	[
-		// 		'name' => 'sd',
-		// 		"email" => "dfdf@gmail.com",
-		// 		'password_display' => '12312312',
-		// 		'password' => '12312312',
-		// 		'is_super' => 2
-		// 	]
-		// ]);
-
         $this->view->render('pages.signup');
     }
 
