@@ -2,10 +2,11 @@
 Khung sườn php dùng để xây dựng website.
 
 ## Sử dụng router
+### Kết hợp với middleware như sau, cso thể khai báo nhiều middleware thành mảng, tên middleware phải giống với tên file php 
 
 ```
 Router::site(function() {
-	Router::get('/', 'HomeController@index', 'home', ['auth']);
+	Router::get('/', 'HomeController@index', 'home', ['Authenticated']);
 
 	Router::group("/auth", function() {
 		Router::post("/doLogin", 'AuthController@doLogin', 'doLogin');
@@ -15,8 +16,8 @@ Router::site(function() {
 	});
 	
 
-	Router::get('/query/{id:i}/edit/{name:s}', 'HomeController@pageQuery', 'pageQuery');
-	Router::get('/read-data', 'HomeController@readData', 'readData');
+	Router::get('/query/{id:i}/edit/{name:s}', 'HomeController@pageQuery', 'pageQuery', ['Authenticated']);
+	Router::get('/read-data', 'HomeController@readData', 'readData', ['Authenticated']);
 
 	Router::get('/abc', function() {
 		echo 'Hi!';
