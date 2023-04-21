@@ -10,7 +10,7 @@ class ValidateRequest
         }
     }
 
-    public function validate($rules = array(), $messages = array()) {
+    public function validate($rules = array(), $redirect = false) {
         $error = [];
         foreach ($rules as $param => $rule) {
             $ruleArr = explode('|', $rule);
@@ -18,7 +18,14 @@ class ValidateRequest
                 $handle = explode(':', $ruleHandle);
                 $extend = isset($handle[1]) ? $handle[1] : ''; 
                 $check = $this->{$handle[0]}($param, $extend);
-                if (!$check) return $this->error;
+                if (!$check) {
+                    if ($redirect) {
+                        dd('dasd');
+                        redirect_back(['error' => $this->error]);
+                    } else {
+                        return $this->error;
+                    }
+                }
             }
         }
         return true; 
@@ -62,5 +69,6 @@ class ValidateRequest
 
     private function string($param, $extend ='') {
         $value = $this->$param;
+        return true;
     }
 }
