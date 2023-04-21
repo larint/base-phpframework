@@ -5,6 +5,10 @@ abstract class AppInit
 
     public function __construct( $request )
     {
+        require_once PATH_SYSTEM . '/core/loader/LangLoader.php';
+        $lang = new LangLoader();
+        $lang->load();
+
     	require_once PATH_SYSTEM . '/core/loader/ConfigLoader.php';
     	$this->config = new ConfigLoader($request);
     	$this->config->load(true);

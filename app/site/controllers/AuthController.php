@@ -13,13 +13,13 @@ class AuthController extends BaseController
     }
     
 	public function doLogin( $request ) {
-		$error = [];
-		if (empty($request->email)) {
-			$error['email'] = 'Chưa nhập email!';
-			redirect_back(['error' => $error]);
-		}
-		if (empty($request->password)) {
-			$error['password'] = 'Chưa nhập password!';
+		$error = $request->validate([
+			'email' => 'required|max:20|min:1|email',
+			'password' => 'min:3|max:10|string'
+		],[
+			
+		]);
+		if (count($error) > 0) {
 			redirect_back(['error' => $error]);
 		}
 

@@ -15,7 +15,7 @@
         @csrf_field
         <div class="form-group">
             <label for="exampleInputEmail1">Email address</label>
-            <input type="email" value="<?= old('email') ?>" class="form-control" id="exampleInputEmail1" name="email" placeholder="Enter email">
+            <input type="text" value="<?= old('email') ?>" class="form-control" id="exampleInputEmail1" name="email" placeholder="Enter email">
             <small id="emailHelp" class="form-text text-danger"><?= error('email') ?></small>
         </div>
         <div class="form-group">

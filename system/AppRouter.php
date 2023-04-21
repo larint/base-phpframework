@@ -141,12 +141,12 @@ class AppRouter {
             // action
             if( is_string($handler) && strpos($handler, '@') ){
                 list($controller, $action) = explode('@', $handler); 
-                $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
+                // $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
                 return [ self::$controller => $controller, self::$action => $action, self::$args => $args, self::$middleware => $middleware];
             }
 
             if( is_callable($handler) ){
-                $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
+                // $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
                 return [ self::$controller => null, self::$action => $handler, self::$args => $args, self::$middleware => $middleware];
             }
 
@@ -170,7 +170,7 @@ class AppRouter {
             } else {
                 $controller = 'ErrorController';
                 $action = 'notFound';
-                $args = null;
+                $args = [];
                 $middleware = [];
             }
             $pathApp = self::isRequestAdmin() ? PATH_ADMIN  : PATH_SITE;
@@ -215,12 +215,12 @@ class AppRouter {
 
             // save action for post request
             self::savePostRequest($action, $args);
-          
-            if ( isset($args) && !empty($args) ) {
-                $controllerObject->{$action}($args);
-            } else {
-                $controllerObject->{$action}();
-            }
+
+            // init ValidateRequest
+            include_once PATH_SYSTEM . "/core/request/ValidateRequest.php";
+            $validateRequest = new ValidateRequest($args);
+            $controllerObject->{$action}($validateRequest);
+            
         }
     }
 

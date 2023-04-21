@@ -542,3 +542,35 @@ if (!function_exists('string_dot')) {
 		return substr_replace($str, $char, $pos, 0);
 	}
 }
+
+if (!function_exists('array_flatten')) {
+	function array_flatten($array, $split = null) { 
+		if ($split) $split .= '.';
+
+		$result = array(); 
+		foreach ($array as $key => $value) { 
+			if (is_array($value)) { 
+				$result = array_merge($result, array_flatten($value, $split . $key)); 
+			} else { 
+				$result[$split . $key] = $value;
+			} 
+		} 
+		return $result; 
+	}
+}
+
+
+if (!function_exists('lang')) {
+	function lang($path, $attr = array()) {
+		$langData = array_flatten($GLOBALS["lang"]);
+		$text = '';
+		if (isset($langData[$path])) {
+			$fields = array_map(function($v) {
+				return ":$v";
+			}, array_keys($attr));
+			$text = count($attr) > 0 ? str_ireplace($fields, array_values($attr), $langData[$path]) : $langData[$path];
+		}
+		
+		return ucfirst($text);
+	}
+}

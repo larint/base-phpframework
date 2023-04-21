@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+$_SESSION['lang'] = 'vi';   
+
 define('APP_ROOT', '');
 define('ROOT_URL', (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . APP_ROOT);
 define('URL_PUBLIC', ROOT_URL . '/public');
