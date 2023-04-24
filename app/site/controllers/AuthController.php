@@ -14,8 +14,8 @@ class AuthController extends BaseController
     
 	public function doLogin( $request ) {
 		$request->validate([
-			'email' => 'required|max:20|min:1|email',
-			'password' => 'min:3|max:10|string'
+			'email' => 'required|max:20|min:1',
+			'password' => 'required|min:3|max:10'
 		], true);
 
 		$user = $this->account->select(['id','email','password'])

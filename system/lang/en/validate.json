@@ -3,5 +3,6 @@
     "min" : ":field requires a minimum of :min characters",
     "max" : ":field requires up to :max characters",
     "email" : "Invalid email",
-    "string" : "The :field field must be a string"
+    "string" : "The :field field must be a string",
+    "number" : "The :field field must be a digit"
 }

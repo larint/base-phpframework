@@ -1,7 +1,9 @@
 {
-    "required" : ":field is required",
-    "min" : ":field requires a minimum of :min characters",
-    "max" : ":field requires up to :max characters",
-    "email" : "Invalid email",
-    "string" : "The :field field must be a string"
+    "required" : ":field là bắt buộc",
+    "min" : ":field yêu cầu tối thiểu :min ký tự",
+    "max" : ":field yêu cầu tối đa :max ký tự",
+    "email" : "Email không hợp lệ",
+    "string" : ":field phải là một chuỗi",
+    "number" : ":field phải là một chữ số",
+    "url" : ":field phải là liên kết hợp lệ"
 }
