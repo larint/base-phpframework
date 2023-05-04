@@ -94,4 +94,25 @@ class ValidateRequest
         return true;
     }
 
+    private function checkUnique($param, $extend ='') {
+        $value = $this->$param;
+        if (empty($extend)) {
+            throw new Exception("Syntax must be unique:table_name.column_name");
+        }
+        $extend = explode('.', $extend);
+        $table = $extend[0];
+        $col = $extend[1];
+        $model = new Model();
+        $result = $model->select(['id'], '', $table)
+                            ->where([
+                                $col => $value
+                            ])
+                            ->first();
+        if ($result) {
+            $this->error[$param] = lang('validate.unique', ['field' => $param]);
+            return false;
+        }
+        return true;
+    }
+
 }

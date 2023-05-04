@@ -14,6 +14,7 @@ abstract class DBCRUD
     public const T_NUMERIC = ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'];
     public const T_STRING = ['varchar', 'char', 'mediumtext', 'longtext', 'text', 'timestamp'];
     public const T_DECIMAL = ['float', 'decimal', 'double', 'real'];
+    public const T_DATETIME = ['datetime', 'timestamp'];
 
     public function __construct()
     {
@@ -366,6 +367,10 @@ abstract class DBCRUD
                     $kBind .= 's';
                 } elseif (in_array($type, self::T_DECIMAL)) {
                     $kBind .= 'd';
+                } elseif (in_array($type, self::T_DATETIME)) {
+                    $kBind .= 's';
+                } else {
+                    $kBind .= 's';
                 }
                 $vBind[] = $value;
             } elseif ($col == 'id') {
@@ -384,6 +389,12 @@ abstract class DBCRUD
                 } elseif (in_array($type, self::T_DECIMAL)) {
                     $kBind .= 'd';
                     $vBind[] = $isnull == 'NO' ? 0 : null;
+                } elseif (in_array($type, self::T_DATETIME)) {
+                    $kBind .= 's';
+                    $vBind[] = null;
+                } else {
+                    $kBind .= 's';
+                    $vBind[] = null;
                 }
             }
         }

@@ -111,6 +111,13 @@ class TemplateLoader
     {
       
         $childPage = str_replace('@csrf_field', csrf_field(), $childPage);
+
+        ob_start();
+        require_once PATH_VIEW_SYSTEM . "/error/message.php";
+        $errorTag = ob_get_contents();
+        ob_end_clean();
+        $childPage = str_replace('@error', $errorTag, $childPage);
+       
         preg_match_all("/@end_(.*)/i", $childPage, $matchTagName);
         if (isset($matchTagName[1])) {
             $matchTagNameUniq = array_unique(array_map(function($v) {

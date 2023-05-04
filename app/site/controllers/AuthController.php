@@ -38,30 +38,28 @@ class AuthController extends BaseController
     }
 
 	public function doRegistry($request) {
-		$error = [];
-		if (empty($request->email)) {
-			$error['email'] = 'Chưa nhập email!';
-		}
-		if (empty($request->password)) {
-			$error['password'] = 'Chưa nhập password!';
-		}
-		
-		redirect_back(['error' => $error]);
+		$request->validate([
+			'email' => 'required|max:20|min:1|unique:account.email',
+			'password' => 'required|min:3|max:10'
+		], true);
+
+		if ( $user ) {
+			redirect_back(['error' => ['Email đã tồn tại']]);
+		} 
+		$user = $this->account->create([
+			'name' => 'test',
+			'email' => $request->email,
+			'password_display' => $request->password,
+			'password' => hash_pass($request->password),
+			'is_super' => 0
+		]);
+
+		redirect_back(['Đăng ký không thành công']);
 	}
 
 	public function doLogout() {
 		Auth::unset();
 		return redirect_route('getLogin');
-	}
-
-	public static function isLoginAmin() {
-		return SessionApp::has('user') ? true : false;
-	}
-
-	// hàm để sinh một mật khẩu
-	public function genPass($pass) {
-		$hash_pass = hashPass($pass);
-		error_log($pass. ' : ' .$hash_pass . PHP_EOL, 3, 'hash_pass');
 	}
 
 }

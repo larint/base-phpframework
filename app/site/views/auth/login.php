@@ -2,9 +2,9 @@
 
 @style
 <style>
-    .login {
-        width: 400px;
-    }
+.login {
+    width: 400px;
+}
 </style>
 @end_style
 
@@ -15,7 +15,8 @@
         @csrf_field
         <div class="form-group">
             <label for="exampleInputEmail1">Email address</label>
-            <input type="text" value="<?= old('email') ?>" class="form-control" id="exampleInputEmail1" name="email" placeholder="Enter email">
+            <input type="text" value="<?= old('email') ?>" class="form-control" id="exampleInputEmail1" name="email"
+                placeholder="Enter email">
             <small id="emailHelp" class="form-text text-danger"><?= error('email') ?></small>
         </div>
         <div class="form-group">
@@ -27,11 +28,7 @@
             <input type="checkbox" class="form-check-input" id="exampleCheck1" name="remember">
             <label class="form-check-label" for="exampleCheck1">Remember me</label>
         </div>
-        <div>
-            <?php foreach (error() as $k => $v): ?>
-                <small id="emailHelp" class="form-text text-danger"><?= is_numeric($k) ? $v : '' ?></small>
-            <?php endforeach; ?>
-        </div>
+        @error
         <div class="text-right">
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
