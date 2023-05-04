@@ -1,8 +1,6 @@
 <?php
 session_start();
 
-$_SESSION['lang'] = 'vi';   
-
 define('APP_ROOT', '');
 define('ROOT_URL', (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . APP_ROOT);
 define('URL_PUBLIC', ROOT_URL . '/public');
@@ -28,6 +26,7 @@ define('REQUEST_SYSTEM', 'system');
 if (!file_exists(PATH_ROOT . '/.env')) dd('.env system configuration file does not exist');
 Dotenv\Dotenv::createImmutable(PATH_ROOT)->load();
 
+$_SESSION['lang'] = isset($_ENV['LANG']) ? $_ENV['LANG'] : "en";
 date_default_timezone_set(isset($_ENV['TIMEZONE']) ? $_ENV['TIMEZONE'] : 'Asia/Ho_Chi_Minh');
 define('APP_NAME', isset($_ENV['APP_NAME']) ? $_ENV['APP_NAME'] : "web name");
 define('SESSION_NAME', isset($_ENV['SESSION_NAME']) ? $_ENV['SESSION_NAME'] : APP_NAME . 'sess');
@@ -40,5 +39,3 @@ define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : "localhost");
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : "root");
 define("DB_PASS", isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : "");
 define("DB_NAME", isset($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : "");
-
-

@@ -29,7 +29,7 @@ class AuthController extends BaseController
 				redirect_route('home');
 			}
 		} 
-		redirect_back(['error' => ['Đăng nhập không thành công']]);
+		redirect_back(['error' => [_t('message.login_failed')]]);
 	}
 
 	public function getRegistry($request)
@@ -44,7 +44,7 @@ class AuthController extends BaseController
 		], true);
 
 		if ( $user ) {
-			redirect_back(['error' => ['Email đã tồn tại']]);
+			redirect_back(['error' => [_t('message.email_exist')]]);
 		} 
 		$user = $this->account->create([
 			'name' => 'test',
@@ -54,7 +54,7 @@ class AuthController extends BaseController
 			'is_super' => 0
 		]);
 
-		redirect_back(['Đăng ký không thành công']);
+		redirect_back([_t('message.register_failed')]);
 	}
 
 	public function doLogout() {

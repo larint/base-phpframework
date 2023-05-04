@@ -574,3 +574,10 @@ if (!function_exists('lang')) {
 		return ucfirst($text);
 	}
 }
+
+
+if (!function_exists('_t')) {
+	function _t($path, $attr = array()) {
+		return lang($path, $attr);
+	}
+}
