@@ -47,15 +47,17 @@ class AppRouter {
         if ( substr($pathPrefix, 0, 1) != '/' ) {
             throw new Exception('Router name without the "/" character at the beginning');
         }
+        self::$pathPrefix = $pathPrefix;
         self::$request = REQUEST_ADMIN;
-        call_user_func($handler, $pathPrefix);
+        call_user_func($handler);
+        self::$pathPrefix = '';
     }
 
     public static function group($pathPrefix, $handler){
-        self::$pathPrefix = $pathPrefix;
-        if ( substr(self::$pathPrefix , 0, 1) != '/' ) {
+        if ( substr($pathPrefix , 0, 1) != '/' ) {
             throw new Exception('Router name without the "/" character at the beginning');
         }
+        self::$pathPrefix = $pathPrefix;
         call_user_func($handler);
         self::$pathPrefix = '';
     }
@@ -95,7 +97,8 @@ class AppRouter {
     }
 
     private static function addRoute($method, $path, $handler, $alias, $middleware = array()){
-        $path = self::$pathPrefix . $path;
+        $path = self::$pathPrefix ? self::$pathPrefix . $path : $path;
+        $path = $path == '/' ? $path : rtrim($path, '/');
         array_push(
             self::$routes[$method], 
             [

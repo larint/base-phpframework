@@ -9,11 +9,11 @@ class ModelLoader
         $this->pathModel = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
     }
 
-    public function setViewData() {
+    public function setViewComposer() {
         include_once PATH_SYSTEM . '/viewdata/ViewData.php';
         include_once PATH_APP . '/viewdata/ViewComposer.php';
-        $shareData  = new ViewComposer($this->request);
-        $shareData->pass();
+        $viewComposer  = new ViewComposer($this->request);
+        $viewComposer->pass($this->request);
     }
 
     public function load($loadAll, $modelName = null) {
@@ -36,7 +36,7 @@ class ModelLoader
     			include_once $fileName;
     		}
 
-            $this->setViewData();
+            $this->setViewComposer();
     		return true;
     	} else {
     		$modelFullPath = $this->pathModel . "/models/$modelName.php";
@@ -45,7 +45,7 @@ class ModelLoader
             }
 			include_once $modelFullPath;
 
-            $this->setViewData();
+            $this->setViewComposer();
 			return true;
     	}
         return false;
