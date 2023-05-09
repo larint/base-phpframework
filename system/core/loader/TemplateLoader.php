@@ -8,9 +8,9 @@ class TemplateLoader
         $this->request = $request;
         if ($request == REQUEST_ADMIN) {
             $this->pathView = PATH_VIEW_ADMIN;
-        } else if ($request == REQUEST_SITE) {
+        } elseif ($request == REQUEST_SITE) {
             $this->pathView = PATH_VIEW_SITE;
-        } else if ($request == REQUEST_SYSTEM) {
+        } elseif ($request == REQUEST_SYSTEM) {
             $this->pathView = PATH_VIEW_SYSTEM;
         }
 
@@ -27,7 +27,7 @@ class TemplateLoader
         $childPath = str_replace('.', '/', $viewName);
         $pathFullView = $this->pathView . "/$childPath.php";
         $pageHtml = $this->buildHtmlContent($pathFullView, $data, $viewName);
-        if ( !is_error_app() ) {
+        if (!is_error_app()) {
             if ($return) {
                 return $pageHtml;
             }
@@ -42,7 +42,7 @@ class TemplateLoader
     public function renderAny($pathFullView, $data = array(), $return = false)
     {
         $pageHtml = $this->buildHtmlContent($pathFullView, $data);
-        if ( !is_error_app() ) {
+        if (!is_error_app()) {
             if ($return) {
                 return $pageHtml;
             }
@@ -50,21 +50,22 @@ class TemplateLoader
         }
     }
 
-    private function buildHtmlContent($pathFullView, $data = array(), $viewName = '') {
+    private function buildHtmlContent($pathFullView, $data = array(), $viewName = '')
+    {
         if (!file_exists($pathFullView)) {
             throw new Exception("File template does not exist: $pathFullView");
         }
-        
-        if ( !empty($data) ) {
+
+        if (!empty($data)) {
             extract($data);
         }
-        
+
         // extract data to views
         $shareData = isset($this->viewData) ? $this->viewData->getData($viewName) : null;
-        if ( !empty($shareData) ) {
+        if (!empty($shareData)) {
             extract($shareData);
         }
-       
+
         ob_start();
         require_once $pathFullView;
         $childPage = ob_get_contents();
@@ -73,7 +74,7 @@ class TemplateLoader
         $layoutPath = $this->filterLayoutExtend($childPage);
         $layoutPath = $this->pathView . "/$layoutPath.php";
         $layoutPage = '';
-        if (file_exists($layoutPath) ) {
+        if (file_exists($layoutPath)) {
             ob_start();
             require_once $layoutPath;
             $layoutPage = ob_get_contents();
@@ -85,9 +86,10 @@ class TemplateLoader
         // rerender include if subpgae has @include tag
         $childPage = $this->renderIncludeTag($childPage, $shareData);
         $pageHtml = $this->renderSectionTag($layoutPage, $childPage);
+        $pageHtml = $this->renderAssetTag($pageHtml);
 
         // remove data in views
-        if ( !empty($shareData) ) {
+        if (!empty($shareData)) {
             $this->viewData->removeData($viewName);
         }
 
@@ -95,7 +97,8 @@ class TemplateLoader
         return $pageHtml;
     }
 
-    private function filterLayoutExtend(&$childPage) {
+    private function filterLayoutExtend(&$childPage)
+    {
         preg_match("/@extend (.*)\r/i", $childPage, $matchTag);
         preg_match("/@extend (.*)/i", $childPage, $matchTag);
         if (isset($matchTag[1])) {
@@ -107,9 +110,21 @@ class TemplateLoader
         return '';
     }
 
+
+    private function renderAssetTag($pageHtml)
+    {
+        preg_match_all("/@asset (.*)\"/i", $pageHtml, $matchs);
+        if (isset($matchs[1])) {
+            $links = array_map(function ($item) {
+                return asset(trim($item), false, true). '"';
+            }, $matchs[1]);
+            $pageHtml = str_replace($matchs[0], $links, $pageHtml);
+        }
+        return $pageHtml;
+    }
+
     private function renderSectionTag($layoutPage, $childPage)
     {
-      
         $childPage = str_replace('@csrf_field', csrf_field(), $childPage);
 
         ob_start();
@@ -117,10 +132,10 @@ class TemplateLoader
         $errorTag = ob_get_contents();
         ob_end_clean();
         $childPage = str_replace('@error', $errorTag, $childPage);
-       
+
         preg_match_all("/@end_(.*)/i", $childPage, $matchTagName);
         if (isset($matchTagName[1])) {
-            $matchTagNameUniq = array_unique(array_map(function($v) {
+            $matchTagNameUniq = array_unique(array_map(function ($v) {
                 return trim($v);
             }, $matchTagName[1]));
 
@@ -137,15 +152,15 @@ class TemplateLoader
         // check for undeclared tags in subpages
         $tagNotMatchPattern = implode('|', $this->tagNotMatch);
         preg_match_all("/[ *]@(((?!($tagNotMatchPattern)).)*)/i", $layoutPage, $matchExistTag);
-        $matchExistTag = array_unique(array_filter($matchExistTag[0], function($v) {
+        $matchExistTag = array_unique(array_filter($matchExistTag[0], function ($v) {
             return !empty($v) && trim($v)!= '@';
         }));
 
-        
+
         if (count($matchExistTag) > 0) {
             $layoutPage = str_replace($matchExistTag, array_fill(0, count($matchExistTag), ''), $layoutPage);
         }
-        
+
         return !empty($layoutPage) ? $layoutPage : $childPage;
     }
 
@@ -156,10 +171,10 @@ class TemplateLoader
             preg_match_all("/@include (.*)/i", $layoutPage, $matchTag);
         }
         if (isset($matchTag[1][0])) {
-            if ( !empty($shareData) ) {
+            if (!empty($shareData)) {
                 extract($shareData);
             }
-            for ($i = 0; $i < count($matchTag[1]); $i++) {  
+            for ($i = 0; $i < count($matchTag[1]); $i++) {
                 $tag = $matchTag[0][$i];
                 $path = $matchTag[1][$i];
                 $pathTemplate = trim(str_replace('.', '/', $path));

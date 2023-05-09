@@ -1,10 +1,11 @@
 <?php
+
 session_start();
 
 define('APP_ROOT', '');
 define('ROOT_URL', (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . APP_ROOT);
+define('PUBLIC_FOLDER', '/public');
 define('URL_PUBLIC', ROOT_URL . '/public');
-
 define('PATH_ROOT', $_SERVER['DOCUMENT_ROOT'] . APP_ROOT);
 define('PATH_SYSTEM', PATH_ROOT . '/system');
 define('PATH_PUBLIC', PATH_ROOT . '/public');
@@ -23,7 +24,9 @@ define('REQUEST_ADMIN', 'admin');
 define('REQUEST_SITE', 'site');
 define('REQUEST_SYSTEM', 'system');
 
-if (!file_exists(PATH_ROOT . '/.env')) dd('.env system configuration file does not exist');
+if (!file_exists(PATH_ROOT . '/.env')) {
+    dd('.env system configuration file does not exist');
+}
 Dotenv\Dotenv::createImmutable(PATH_ROOT)->load();
 
 $_SESSION['lang'] = isset($_ENV['LANG']) ? $_ENV['LANG'] : "en";
@@ -32,7 +35,7 @@ define('APP_NAME', isset($_ENV['APP_NAME']) ? $_ENV['APP_NAME'] : "web name");
 define('SESSION_NAME', isset($_ENV['SESSION_NAME']) ? $_ENV['SESSION_NAME'] : APP_NAME . 'sess');
 define('SESSION_EXPIRE', isset($_ENV['SESSION_EXPIRE']) ? $_ENV['SESSION_EXPIRE'] : 86400);
 define('SESSION_DRIVER', isset($_ENV['SESSION_DRIVER']) ? $_ENV['SESSION_DRIVER'] : 'session');
-define("DEBUG", isset($_ENV['DEBUG']) ? filter_var($_ENV['DEBUG'], FILTER_VALIDATE_BOOLEAN): false);
+define("DEBUG", isset($_ENV['DEBUG']) ? filter_var($_ENV['DEBUG'], FILTER_VALIDATE_BOOLEAN) : false);
 define("TIME_EXPIRE_TOKEN", isset($_ENV['TIME_EXPIRE_TOKEN']) ? $_ENV['TIME_EXPIRE_TOKEN'] : '1h');
 define("DB_CONNECTION", isset($_ENV['DB_CONNECTION']) ? $_ENV['DB_CONNECTION'] : "mysql");
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : "localhost");
