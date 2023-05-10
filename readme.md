@@ -34,6 +34,7 @@ Router::site(function() {
 
 ## Sử dụng tag trong php
 
+Note: View phải được thiết lập LF (mark a line break)
 Để include page php dùng thẻ **@include** trong đó **partials.footer** là đường dẫn cách nhau bằng dấu chấm
 
 ```
