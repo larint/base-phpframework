@@ -52,6 +52,7 @@ class TemplateLoader
 
     private function buildHtmlContent($pathFullView, $data = array(), $viewName = '')
     {
+
         if (!file_exists($pathFullView)) {
             throw new Exception("File template does not exist: $pathFullView");
         }
@@ -65,11 +66,24 @@ class TemplateLoader
         if (!empty($shareData)) {
             extract($shareData);
         }
+        $defineVarsOld = get_defined_vars();
 
         ob_start();
         require_once $pathFullView;
         $childPage = ob_get_contents();
         ob_end_clean();
+
+        // get var definr in childpage
+        $defineVarsNew = get_defined_vars();
+        unset($defineVarsNew['childPage']);
+        $childPageVars = array_diff(array_map('serialize', $defineVarsNew), array_map('serialize', $defineVarsOld));
+        $childPageVars = array_map('unserialize', $childPageVars);
+        unset($childPageVars['defineVarsOld']);
+
+        $existKeyVars = array_intersect_key($defineVarsOld, $childPageVars);
+        if (count($existKeyVars) > 0) {
+            throw new Exception("Same variable in child page: " . implode(array_keys($existKeyVars), ', '));
+        }
 
         $layoutPath = $this->filterLayoutExtend($childPage);
         $layoutPath = $this->pathView . "/$layoutPath.php";
@@ -82,9 +96,9 @@ class TemplateLoader
         }
 
         // filter include tag
-        $layoutPage = $this->renderIncludeTag($layoutPage, $shareData, $data);
+        $layoutPage = $this->renderIncludeTag($layoutPage, $shareData, $data, $childPageVars);
         // rerender include if subpgae has @include tag
-        $childPage = $this->renderIncludeTag($childPage, $shareData, $data);
+        $childPage = $this->renderIncludeTag($childPage, $shareData, $data, $childPageVars);
         $pageHtml = $this->renderSectionTag($layoutPage, $childPage);
         $pageHtml = $this->renderAssetTag($pageHtml);
 
@@ -163,7 +177,7 @@ class TemplateLoader
         return !empty($layoutPage) ? $layoutPage : $childPage;
     }
 
-    private function renderIncludeTag($layoutPage, $shareData = array(), $data = array())
+    private function renderIncludeTag($layoutPage, $shareData = array(), $data = array(), $childPageVars = array())
     {
         preg_match_all("/@include (.*)/i", $layoutPage, $matchTag);
         if (isset($matchTag[1][0])) {
@@ -172,6 +186,9 @@ class TemplateLoader
             }
             if (!empty($data)) {
                 extract($data);
+            }
+            if (!empty($childPageVars)) {
+                extract($childPageVars);
             }
             for ($i = 0; $i < count($matchTag[1]); $i++) {
                 $tag = $matchTag[0][$i];
