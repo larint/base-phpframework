@@ -55,7 +55,7 @@ abstract class DBCRUD
 
             $paramType = key($params);
             $arrBindParams[] = &$paramType;
-            
+
             $paramValues = $params[$paramType];
             for ($i = 0; $i < count($paramValues); $i++) {
                 $arrBindParams[] = &$paramValues[$i];
@@ -126,11 +126,11 @@ abstract class DBCRUD
             }
         }
         if (count($dataUni) > 0) {
-			$findUni = $this->select(['id'])->where($dataUni)->first();
-			if (isset($findUni->id)) {
-				throw new Exception("Record duplicate in database " . json_encode($dataUni));
-			}
-		}
+            $findUni = $this->select(['id'])->where($dataUni)->first();
+            if (isset($findUni->id)) {
+                throw new Exception("Record duplicate in database " . json_encode($dataUni));
+            }
+        }
 
         $this->query = "INSERT INTO {$this->table} ($cols) VALUES ";
         $this->buildInsert($data, $typeColumn);
@@ -162,7 +162,7 @@ abstract class DBCRUD
         }
         return true;
     }
-    
+
 
     public function destroy($data = array())
     {
@@ -222,6 +222,16 @@ abstract class DBCRUD
     public function findAll()
     {
         return $this->select()->get();
+    }
+
+    public function count($fields = array())
+    {
+        if (count($fields) > 0) {
+            return $this->select(['COUNT(*) AS c'])
+                        ->where($fields)
+                        ->first()->c;
+        }
+        return $this->select(['COUNT(*) AS c'])->first()->c;
     }
 
     public function where($fields = array())
