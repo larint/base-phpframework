@@ -4,8 +4,8 @@
  * @filesource  system/AppRouter.php
  * @description router system
  */
-class AppRouter {
-
+class AppRouter
+{
     private static $routes = [
         'GET'    => [],
         'POST'   => [],
@@ -30,21 +30,23 @@ class AppRouter {
     private static $action = 'action';
     private static $args = 'args';
     private static $pathPrefix = '';
-    
+
 
     private static $request = REQUEST_SITE; // check is a site or admin request
-    const DEFAULT_CONTROLLERS = ['TokenController', 'ErrorController'];
-    const REGVAL = '/({.+?})/';
-    const METHOD_NOT_FOUND = 1;
-    const ROUTER_NOT_FOUND = 2;
-    
-    public static function site($handler){
+    public const DEFAULT_CONTROLLERS = ['TokenController', 'ErrorController'];
+    public const REGVAL = '/({.+?})/';
+    public const METHOD_NOT_FOUND = 1;
+    public const ROUTER_NOT_FOUND = 2;
+
+    public static function site($handler)
+    {
         self::$request = REQUEST_SITE;
         call_user_func($handler);
     }
 
-    public static function admin($pathPrefix, $handler){
-        if ( substr($pathPrefix, 0, 1) != '/' ) {
+    public static function admin($pathPrefix, $handler)
+    {
+        if (substr($pathPrefix, 0, 1) != '/') {
             throw new Exception('Router name without the "/" character at the beginning');
         }
         self::$pathPrefix = $pathPrefix;
@@ -53,8 +55,9 @@ class AppRouter {
         self::$pathPrefix = '';
     }
 
-    public static function group($pathPrefix, $handler){
-        if ( substr($pathPrefix , 0, 1) != '/' ) {
+    public static function group($pathPrefix, $handler)
+    {
+        if (substr($pathPrefix, 0, 1) != '/') {
             throw new Exception('Router name without the "/" character at the beginning');
         }
         self::$pathPrefix = $pathPrefix;
@@ -62,7 +65,8 @@ class AppRouter {
         self::$pathPrefix = '';
     }
 
-    public static function action($path, $handler, $middleware = array()) {
+    public static function action($path, $handler, $middleware = array())
+    {
         // get the closest group name
         $lastElePath = self::lastElePath($path, 1);
 
@@ -76,35 +80,41 @@ class AppRouter {
         self::get("$path/delete/{id:i}", "$handler@delete", "$lastElePath.delete_get", $middleware);
     }
 
-    public static function any($path, $handler, $alias = null, $middleware = array()){
+    public static function any($path, $handler, $alias = null, $middleware = array())
+    {
         self::addRoute('ANY', $path, $handler, $alias, $middleware);
     }
 
-    public static function get($path, $handler, $alias = null, $middleware = array()){
+    public static function get($path, $handler, $alias = null, $middleware = array())
+    {
         self::addRoute('GET', $path, $handler, $alias, $middleware);
     }
 
-    public static function post($path, $handler, $alias = null, $middleware = array()){
+    public static function post($path, $handler, $alias = null, $middleware = array())
+    {
         self::addRoute('POST', $path, $handler, $alias, $middleware);
     }
 
-    public static function put($path, $handler, $alias = null, $middleware = array()){
+    public static function put($path, $handler, $alias = null, $middleware = array())
+    {
         self::addRoute('PUT', $path, $handler, $alias, $middleware);
     }
 
-    public static function delete($path, $handler, $alias = null, $middleware = array()){
+    public static function delete($path, $handler, $alias = null, $middleware = array())
+    {
         self::addRoute('DELETE', $path, $handler, $alias, $middleware);
     }
 
-    private static function addRoute($method, $path, $handler, $alias, $middleware = array()){
+    private static function addRoute($method, $path, $handler, $alias, $middleware = array())
+    {
         $path = self::$pathPrefix ? self::$pathPrefix . $path : $path;
         $path = $path == '/' ? $path : rtrim($path, '/');
         array_push(
-            self::$routes[$method], 
+            self::$routes[$method],
             [
                 $path => [
-                    self::$handlerKey => $handler, 
-                    self::$requestKey => self::$request, 
+                    self::$handlerKey => $handler,
+                    self::$requestKey => self::$request,
                     self::$aliasRouteKey => $alias,
                     self::$middleware => $middleware,
                 ]
@@ -112,7 +122,8 @@ class AppRouter {
         );
     }
 
-    private static function filterControler() { 
+    private static function filterControler()
+    {
         // check if the token is valid
         self::validateToken();
 
@@ -120,35 +131,35 @@ class AppRouter {
         $requestUri = self::delLastSlashUri($_GET['url']);
 
         // if the method doesn't exist
-        if ( empty($requestMethod) || !in_array($requestMethod, array_keys(self::$routes)) ) {
+        if (empty($requestMethod) || !in_array($requestMethod, array_keys(self::$routes))) {
             return self::METHOD_NOT_FOUND;
         }
 
         foreach (self::$routes[$requestMethod] as $resource) {
-            $args = []; 
-            $routeName = key($resource); 
+            $args = [];
+            $routeName = key($resource);
             $handler = $resource[$routeName][self::$handlerKey];
             $middleware = $resource[$routeName][self::$middleware];
-            if( preg_match(self::REGVAL, $routeName) ){
-                list($args, $uri, $routeName) = self::getInfoRouter($requestUri, $routeName);  
+            if(preg_match(self::REGVAL, $routeName)) {
+                list($args, $uri, $routeName) = self::getInfoRouter($requestUri, $routeName);
             }
 
-            if( !preg_match("#^$routeName$#", $requestUri) ){
+            if(!preg_match("#^$routeName$#", $requestUri)) {
                 //unset(self::$routes[$requestMethod]);
                 continue;
             }
-            
-            if ( in_array($requestMethod, array_diff(array_keys(self::$routes), ['GET'])) ) {
+
+            if (in_array($requestMethod, array_diff(array_keys(self::$routes), ['GET']))) {
                 $args = isset($_POST) ? json_decode(json_encode($_POST, JSON_FORCE_OBJECT)) : null;
             }
             // action
-            if( is_string($handler) && strpos($handler, '@') ){
-                list($controller, $action) = explode('@', $handler); 
+            if(is_string($handler) && strpos($handler, '@')) {
+                list($controller, $action) = explode('@', $handler);
                 // $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
                 return [ self::$controller => $controller, self::$action => $action, self::$args => $args, self::$middleware => $middleware];
             }
 
-            if( is_callable($handler) ){
+            if(is_callable($handler)) {
                 // $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
                 return [ self::$controller => null, self::$action => $handler, self::$args => $args, self::$middleware => $middleware];
             }
@@ -164,8 +175,8 @@ class AppRouter {
         self::setDefaultRouter();
         $runs = self::filterControler();
 
-        if ( $runs == self::METHOD_NOT_FOUND || $runs == self::ROUTER_NOT_FOUND || is_array($runs) ) {
-            if ( is_array($runs) ) {
+        if ($runs == self::METHOD_NOT_FOUND || $runs == self::ROUTER_NOT_FOUND || is_array($runs)) {
+            if (is_array($runs)) {
                 $controller = $runs[self::$controller];
                 $action = $runs[self::$action];
                 $args = $runs[self::$args];
@@ -176,11 +187,11 @@ class AppRouter {
                 $args = [];
                 $middleware = [];
             }
-            $pathApp = self::isRequestAdmin() ? PATH_ADMIN  : PATH_SITE;
-            // Include controller 
+            $pathApp = self::isRequestAdmin() ? PATH_ADMIN : PATH_SITE;
+            // Include controller
             include_once PATH_SYSTEM . '/core/AppInit.php';
-            
-            if ( is_callable($action) ) {
+
+            if (is_callable($action)) {
                 include_once PATH_SYSTEM . "/core/controllers/BaseController.php";
                 $baseController = new BaseController(self::$request);
 
@@ -189,7 +200,7 @@ class AppRouter {
 
                 return !empty($args) ? $action($args) : $action();
             }
-            
+
             if (in_array($controller, self::DEFAULT_CONTROLLERS)) {
                 include_once PATH_SYSTEM . "/core/controllers/BaseController.php";
                 include_once PATH_SYSTEM . "/core/controllers/$controller.php";
@@ -198,21 +209,21 @@ class AppRouter {
                 include_once "$pathApp/controllers/$controller.php";
             }
 
-            if ( !class_exists($controller) ){
+            if (!class_exists($controller)) {
                 throw new Exception('Class ' . $controller . ' not exists');
             }
 
-            $controllerObject = new $controller;
-            
-            if ( !method_exists($controllerObject, $action) ) {
+            $controllerObject = new $controller();
+
+            if (!method_exists($controllerObject, $action)) {
                 throw new Exception("Action $action not exist in $controller");
             }
 
             foreach ($middleware as $middleClass) {
-                if ( !class_exists($middleClass) ){
+                if (!class_exists($middleClass)) {
                     throw new Exception('Middleware name ' . $middleClass . ' not exists');
-                } 
-                $middleObj = new $middleClass;
+                }
+                $middleObj = new $middleClass();
                 $middleObj->handle($args);
             }
 
@@ -223,32 +234,34 @@ class AppRouter {
             include_once PATH_SYSTEM . "/core/request/ValidateRequest.php";
             $validateRequest = new ValidateRequest($args);
             $controllerObject->{$action}($validateRequest);
-            
+
         }
     }
 
     /**
      * save action for post request
      */
-    private static function savePostRequest($action, $args) {
+    private static function savePostRequest($action, $args)
+    {
         // save action for post request
         $requestMethod = $_SERVER['REQUEST_METHOD'];
-        if ( in_array($requestMethod, ['POST', 'PUT', 'DELETE']) ) {
+        if (in_array($requestMethod, ['POST', 'PUT', 'DELETE'])) {
             SessionApp::action($action);
-            if (isset($args) && !empty($args) ) {
+            if (isset($args) && !empty($args)) {
                 // save post data when submit form
                 SessionApp::setPostRequest((array)$args);
-            }    
+            }
         }
     }
 
-    public static function name($alias, $params = array()) {
+    public static function name($alias, $params = array())
+    {
         foreach (self::$routes as $keyMethod => $method) {
             foreach ($method as $route) {
                 $routeName = key($route);
                 $aliasRoute = $route[$routeName][self::$aliasRouteKey];
-                if ( $alias == $aliasRoute ) {
-                    if ( self::isRouteParams($routeName) ) {
+                if ($alias == $aliasRoute) {
+                    if (self::isRouteParams($routeName)) {
                         if (!is_array($params)) {
                             throw new Exception("Parameter must be array.");
                         }
@@ -260,7 +273,7 @@ class AppRouter {
                             throw new Exception("Router $routeName requires ".count($matchArgs[0])." parameters to pass.");
                         }
                         $i = 0;
-                        $routeWithParam = preg_replace_callback(self::REGVAL, function($matches) use($params, &$i) {
+                        $routeWithParam = preg_replace_callback(self::REGVAL, function ($matches) use ($params, &$i) {
                             if (isset($matches[0])) {
                                 $typeParam = explode(':', trim($matches[0], "{}"))[1];
                                 $pattern = self::$patterns[$typeParam];
@@ -274,7 +287,7 @@ class AppRouter {
                         }, $routeName);
                         return ROOT_URL . $routeWithParam;
                     } else {
-                        if ( count($params) > 0 ) {
+                        if (count($params) > 0) {
                             throw new Exception("Router $routeName no parameters required");
                         }
                         return ROOT_URL . $routeName;
@@ -282,42 +295,45 @@ class AppRouter {
                 }
             }
         }
-        
-        return ROOT_URL;
+
+        throw new Exception("Router name not define");
     }
 
-    private static function isRouteParams($routeName) {
-        if ( preg_match("#^(.*){.*}(.*)$#", $routeName) ) {
+    private static function isRouteParams($routeName)
+    {
+        if (preg_match("#^(.*){.*}(.*)$#", $routeName)) {
             return true;
         }
         return false;
     }
 
-    private static function getInfoRouter($requestUri, $routeName){
+    private static function getInfoRouter($requestUri, $routeName)
+    {
         $routeWithReg = self::parseRegexRouter($routeName);
         $regUri = explode('/', $routeName);
-        $regReal = array_replace($regUri, explode('/', $requestUri) );
-        $args = array_diff( $regReal, $regUri );
-        $nameArgs = array_diff( $regUri, $regReal );
+        $regReal = array_replace($regUri, explode('/', $requestUri));
+        $args = array_diff($regReal, $regUri);
+        $nameArgs = array_diff($regUri, $regReal);
 
         $arrKeyArgs = array();
-        if( preg_match("#^$routeWithReg$#", $requestUri) ){
+        if(preg_match("#^$routeWithReg$#", $requestUri)) {
             foreach ($nameArgs as $value) {
-                $key = array_search ($value, $regUri);
+                $key = array_search($value, $regUri);
                 $paramReg = ltrim($value, '{');
                 $name = explode(':', $paramReg)[0];
                 $arrKeyArgs[$name] = $args[$key];
             }
         }
-        
+
         return [$arrKeyArgs, $routeName, $routeWithReg];
     }
 
-    private static function parseRegexRouter($routeName){
-        $routeWithReg = preg_replace_callback(self::REGVAL, function($matches) {
+    private static function parseRegexRouter($routeName)
+    {
+        $routeWithReg = preg_replace_callback(self::REGVAL, function ($matches) {
             $matches[0] = str_replace(['{', '}'], '', $matches[0]);
             $pattern = explode(':', $matches[0])[1];
-            if( in_array($pattern, array_keys(self::$patterns)) ){
+            if(in_array($pattern, array_keys(self::$patterns))) {
                 return self::$patterns[$pattern];
             }
 
@@ -325,11 +341,12 @@ class AppRouter {
         return $routeWithReg;
     }
 
-    protected static function isRequestAdmin() {
+    protected static function isRequestAdmin()
+    {
         $requestMethod = self::getRequest();
         $requestUri = self::delLastSlashUri($_GET['url']);
-        
-        if ( empty($requestMethod) || !in_array($requestMethod, array_keys(self::$routes)) ) {
+
+        if (empty($requestMethod) || !in_array($requestMethod, array_keys(self::$routes))) {
             return false;
         }
 
@@ -337,60 +354,65 @@ class AppRouter {
             $routeName = key($resource);
             $request = $resource[$routeName]['request'];
             $routeWithReg = '';
-            if( preg_match(self::REGVAL, $routeName) ) {
+            if(preg_match(self::REGVAL, $routeName)) {
                 $routeWithReg = self::parseRegexRouter($routeName);
             }
 
-            if ( preg_match("#^$routeWithReg$#", $requestUri) || $requestUri == $routeName) {
+            if (preg_match("#^$routeWithReg$#", $requestUri) || $requestUri == $routeName) {
                 return $request == REQUEST_ADMIN;
             }
         }
         return false;
     }
 
-    private static function validateToken() {
+    private static function validateToken()
+    {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-        if ( in_array($requestMethod, ['POST', 'PUT', 'DELETE']) ) {
-            if ( !isset($_POST['_token']) || empty($_POST['_token']) || !isset($_COOKIE['_token']) || $_COOKIE['_token'] != $_POST['_token'] ) {
+        if (in_array($requestMethod, ['POST', 'PUT', 'DELETE'])) {
+            if (!isset($_POST['_token']) || empty($_POST['_token']) || !isset($_COOKIE['_token']) || $_COOKIE['_token'] != $_POST['_token']) {
                 self::redirectRoute('tokenExpired');
             }
         }
         return true;
     }
 
-    private static function getRequest() {
+    private static function getRequest()
+    {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
-        if ( $requestMethod == 'POST' && isset($_POST['_method']) ) {
+        if ($requestMethod == 'POST' && isset($_POST['_method'])) {
             $method = strtoupper($_POST['_method']);
-            $requestMethod = ( $method == 'DELETE' || $method == 'PUT' ) ? $method : null;
+            $requestMethod = ($method == 'DELETE' || $method == 'PUT') ? $method : null;
         }
 
         return $requestMethod;
     }
 
-    private static function delLastSlashUri($path) {
-        return strlen($path) > 1 ? rtrim($path, '/') :$path;
+    private static function delLastSlashUri($path)
+    {
+        return strlen($path) > 1 ? rtrim($path, '/') : $path;
     }
 
-    private static function redirectRoute($nameRoute, $msg = array(), $params = array(), $statusCode = 303) 
-	{
-		if ( !empty($msg) ) {
-			SessionApp::setMSG($msg);
-		}
-		
-		$route = AppRouter::name($nameRoute, $params);
-		header('Location: ' . $route, false, $statusCode);
-		die();
-	}
+    private static function redirectRoute($nameRoute, $msg = array(), $params = array(), $statusCode = 303)
+    {
+        if (!empty($msg)) {
+            SessionApp::setMSG($msg);
+        }
 
-    public static function lastElePath($url, $index) {
+        $route = AppRouter::name($nameRoute, $params);
+        header('Location: ' . $route, false, $statusCode);
+        die();
+    }
+
+    public static function lastElePath($url, $index)
+    {
         $url = rtrim($url, '/');
         $tokens = explode('/', $url);
         return $tokens[sizeof($tokens)-$index];
     }
 
-    private static function setDefaultRouter() {
+    private static function setDefaultRouter()
+    {
         self::get('/token-expired', 'TokenController@tokenExpired', 'tokenExpired');
         self::get('/notfound', 'ErrorController@notFound', 'notFound');
     }
