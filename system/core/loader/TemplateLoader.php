@@ -82,9 +82,9 @@ class TemplateLoader
         }
 
         // filter include tag
-        $layoutPage = $this->renderIncludeTag($layoutPage, $shareData);
+        $layoutPage = $this->renderIncludeTag($layoutPage, $shareData, $data);
         // rerender include if subpgae has @include tag
-        $childPage = $this->renderIncludeTag($childPage, $shareData);
+        $childPage = $this->renderIncludeTag($childPage, $shareData, $data);
         $pageHtml = $this->renderSectionTag($layoutPage, $childPage);
         $pageHtml = $this->renderAssetTag($pageHtml);
 
@@ -163,12 +163,15 @@ class TemplateLoader
         return !empty($layoutPage) ? $layoutPage : $childPage;
     }
 
-    private function renderIncludeTag($layoutPage, $shareData = array())
+    private function renderIncludeTag($layoutPage, $shareData = array(), $data = array())
     {
         preg_match_all("/@include (.*)/i", $layoutPage, $matchTag);
         if (isset($matchTag[1][0])) {
             if (!empty($shareData)) {
                 extract($shareData);
+            }
+            if (!empty($data)) {
+                extract($data);
             }
             for ($i = 0; $i < count($matchTag[1]); $i++) {
                 $tag = $matchTag[0][$i];

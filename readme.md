@@ -2,6 +2,13 @@
 
 Khung sườn php dùng để xây dựng website.
 
+### tải cấu hình biến môi trường .env
+
+```
+npx dotenv-vault login
+npx dotenv-vault pull
+```
+
 ## Sử dụng router
 
 ### Kết hợp với middleware như sau, cso thể khai báo nhiều middleware thành mảng, tên middleware phải giống với tên file php
