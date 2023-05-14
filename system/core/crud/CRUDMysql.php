@@ -63,7 +63,7 @@ abstract class DBCRUD
 
             call_user_func_array(array($stmt, 'bind_param'), $arrBindParams);
         }
-
+        $this->bindWheres = []; // reset params after execute query
         return $stmt;
     }
 
@@ -144,13 +144,13 @@ abstract class DBCRUD
         return true;
     }
 
-    public function findOrCreate($data = array())
+    public function findOrCreate($data = array(), $checkFields = array())
     {
-        $find = $this->select()->where($data)->get();
+        $find = $this->select()->where($checkFields)->get();
         if (count($find) > 0) {
             return $find;
         }
-        $this->save($data);
+        $this->create($data);
         $find = $this->select()->where($data)->get();
         return $find;
     }
@@ -218,12 +218,6 @@ abstract class DBCRUD
         return $max > 0 ? $data[$max - 1] : null;
     }
 
-    // su dung voi bind_result
-    public function findAll()
-    {
-        return $this->select()->get();
-    }
-
     public function count($fields = array())
     {
         if (count($fields) > 0) {
@@ -232,6 +226,12 @@ abstract class DBCRUD
                         ->first()->c;
         }
         return $this->select(['COUNT(*) AS c'])->first()->c;
+    }
+
+    // su dung voi bind_result
+    public function findAll()
+    {
+        return $this->select()->get();
     }
 
     public function where($fields = array())
@@ -286,55 +286,58 @@ abstract class DBCRUD
         $wheres = [];
         $kBind = '';
         $vBind = [];
-
-        foreach ($fields as $col => $value) {
-            $colField = explode(':', $col);
-            $colName = $colField[0];
-            $operator = count($colField) == 2 ? $colField[1] : '=';
-            $operator = strtoupper($operator);
-            if (empty($colName)) {
-                throw new Exception("Column empty.");
-            }
-            if (!in_array($operator, self::OPERATOR)) {
-                throw new Exception("Operator $operator not valid");
-            }
-
-            if (is_string($value) && in_array($value, [self::IS_NULL, self::IS_NOT_NULL])) {
-                $wheres[] = "$colName $value";
-            } else {
-                if (is_array($value)) {
-                    $inQuery = implode(',', array_fill(0, count($value), '?'));
-                    $wheres[] = "$colName IN ($inQuery)";
-                } else {
-                    $wheres[] = "$colName $operator ?";
+        try {
+            foreach ($fields as $col => $value) {
+                $colField = explode(':', $col);
+                $colName = $colField[0];
+                $operator = count($colField) == 2 ? $colField[1] : '=';
+                $operator = strtoupper($operator);
+                if (empty($colName)) {
+                    throw new Exception("Column empty.");
+                }
+                if (!in_array($operator, self::OPERATOR)) {
+                    throw new Exception("Operator $operator not valid");
                 }
 
-                if (is_string($value)) {
-                    $kBind .= 's';
-                    $vBind[] = ($operator == 'LIKE') ? "%$value%" : $value;
-                } elseif (is_numeric($value) || is_bool($value)) {
-                    $kBind .= 'i';
-                    $vBind[] = ($operator == 'LIKE') ? "%$value%" : $value;
-                } elseif (is_float($value)) {
-                    $kBind .= 'd';
-                    $vBind[] = ($operator == 'LIKE') ? "%$value%" : $value;
-                } elseif (is_array($value)) {
-                    foreach ($value as $v) {
-                        if (is_string($v)) {
-                            $kBind .= 's';
-                        } elseif (is_numeric($v) || is_bool($v)) {
-                            $kBind .= 'i';
-                        } elseif (is_float($v)) {
-                            $kBind .= 'd';
+                if (is_string($value) && in_array($value, [self::IS_NULL, self::IS_NOT_NULL])) {
+                    $wheres[] = "$colName $value";
+                } else {
+                    if (is_array($value)) {
+                        $inQuery = implode(',', array_fill(0, count($value), '?'));
+                        $wheres[] = "$colName IN ($inQuery)";
+                    } else {
+                        $wheres[] = "$colName $operator ?";
+                    }
+
+                    if (is_string($value)) {
+                        $kBind .= 's';
+                        $vBind[] = ($operator == 'LIKE') ? "%$value%" : $value;
+                    } elseif (is_numeric($value) || is_bool($value)) {
+                        $kBind .= 'i';
+                        $vBind[] = ($operator == 'LIKE') ? "%$value%" : $value;
+                    } elseif (is_float($value)) {
+                        $kBind .= 'd';
+                        $vBind[] = ($operator == 'LIKE') ? "%$value%" : $value;
+                    } elseif (is_array($value)) {
+                        foreach ($value as $v) {
+                            if (is_string($v)) {
+                                $kBind .= 's';
+                            } elseif (is_numeric($v) || is_bool($v)) {
+                                $kBind .= 'i';
+                            } elseif (is_float($v)) {
+                                $kBind .= 'd';
+                            }
+                            $vBind[] = $v;
                         }
-                        $vBind[] = $v;
                     }
                 }
             }
-        }
 
-        $this->bindWheres[$kBind] = $vBind;
-        $this->query .= count($fields) > 0 ? " WHERE " . implode(" $condition ", $wheres) : '';
+            $this->bindWheres[$kBind] = $vBind;
+            $this->query .= count($fields) > 0 ? " WHERE " . implode(" $condition ", $wheres) : '';
+        } catch (\Exception $e) {
+            log_db($e->getMessage());
+        }
         return $this;
     }
 

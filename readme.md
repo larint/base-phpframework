@@ -446,12 +446,15 @@ $data = $this->account->createBulk([
 #### Tìm một dòng với điều kiện, nếu không có trong db thì sẽ tạo mới
 
 ```
+Ví dụ: tìm dòng có email là ads@gmail.com, nếu không có thì tạo mới, ngược lại thì không chèn vào db
 $data = $this->account->findOrCreate([
 			'name' => 'ads',
 			"email" => "ads@gmail.com",
 			'password_display' => '12312312',
 			'password' => '12312312',
 			'is_super' => 2
+		],[
+			"email" => "ads@gmail.com",
 		]);
 
 ```

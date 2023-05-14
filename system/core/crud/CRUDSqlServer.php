@@ -23,21 +23,21 @@ abstract class DBCRUD
     public function startTransaction()
     {
         if (sqlsrv_begin_transaction($this->conn) === false) {
-			log_error(sqlsrv_errors(), 'begin transaction');
-			if (DEBUG) {
-				die(print_r(sqlsrv_errors(), true));
-			}
+            log_error(sqlsrv_errors(), 'begin transaction');
+            if (DEBUG) {
+                die(print_r(sqlsrv_errors(), true));
+            }
         }
     }
 
     public function commit()
     {
-        sqlsrv_commit( $this->conn );
+        sqlsrv_commit($this->conn);
     }
 
     public function rollback()
     {
-		sqlsrv_rollback( $this->conn );
+        sqlsrv_rollback($this->conn);
     }
 
     private function executeQuery($sql, $params)
@@ -48,28 +48,28 @@ abstract class DBCRUD
 
             $paramType = key($params);
             $paramValues = $params[$paramType];
-			
+
             for ($i = 0; $i < count($paramValues); $i++) {
                 $arrBindParams[] = &$paramValues[$i];
             }
-			
-			$stmt = sqlsrv_prepare( $this->conn, $sql, $arrBindParams);
+
+            $stmt = sqlsrv_prepare($this->conn, $sql, $arrBindParams);
         } else {
-			$stmt = sqlsrv_prepare( $this->conn, $sql, []);
-		}
+            $stmt = sqlsrv_prepare($this->conn, $sql, []);
+        }
 
-		if( !$stmt ) {
-			log_db(sqlsrv_errors(), "$sql / ");
+        if(!$stmt) {
+            log_db(sqlsrv_errors(), "$sql / ");
             if (DEBUG) {
-                die( print_r( sqlsrv_errors(), true));
+                die(print_r(sqlsrv_errors(), true));
             }
-			return null;
-		}
-
+            return null;
+        }
+        $this->bindWheres = []; // reset params after execute query
         return $stmt;
     }
 
-	public function select($fields = array(), $alias = '', $table = '')
+    public function select($fields = array(), $alias = '', $table = '')
     {
         $cols = count($fields) > 0 ? implode(',', $fields) : '*';
         $table = empty($table) ? $this->table : $table;
@@ -86,15 +86,15 @@ abstract class DBCRUD
         $bindParam[$k1 . $k2] = array_merge($this->bindUpdates[$k1], $this->bindWheres[$k2]);
         $stmt = $this->executeQuery($this->query, $bindParam);
         if (empty($stmt)) {
-			return false;
+            return false;
         }
-		if( sqlsrv_execute( $stmt ) === false ) {
-			log_db(sqlsrv_errors(), "update: ");
-			if (DEBUG) {
-				die(print_r(sqlsrv_errors(), true));
-			}
-			return false; 
-	    }
+        if(sqlsrv_execute($stmt) === false) {
+            log_db(sqlsrv_errors(), "update: ");
+            if (DEBUG) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+            return false;
+        }
         $data = $this->select()->where(array_merge($where, $data))->get();
         return $data;
     }
@@ -108,15 +108,15 @@ abstract class DBCRUD
         $bindParam[$k1 . $k2] = array_merge($this->bindUpdates[$k1], $this->bindWheres[$k2]);
         $stmt = $this->executeQuery($this->query, $bindParam);
         if (empty($stmt)) {
-			return false;
+            return false;
         }
-		if( sqlsrv_execute( $stmt ) === false ) {
-			log_db(sqlsrv_errors(), "updateOr: ");
-			if (DEBUG) {
-				die(print_r(sqlsrv_errors(), true));
-			}
-			return false; 
-	    }
+        if(sqlsrv_execute($stmt) === false) {
+            log_db(sqlsrv_errors(), "updateOr: ");
+            if (DEBUG) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+            return false;
+        }
         $data = $this->select()->whereOr(array_merge($where, $data))->get();
         return $data;
     }
@@ -138,38 +138,38 @@ abstract class DBCRUD
                 $dataUni[$col] = $data[$col];
             }
         }
-		if (count($dataUni) > 0) {
-			$findUni = $this->select(['id'])->where($dataUni)->first();
-			if (isset($findUni->id)) {
-				throw new Exception("Record duplicate in database " . json_encode($dataUni));
-			}
-		}
+        if (count($dataUni) > 0) {
+            $findUni = $this->select(['id'])->where($dataUni)->first();
+            if (isset($findUni->id)) {
+                throw new Exception("Record duplicate in database " . json_encode($dataUni));
+            }
+        }
         $max = $this->select(['max(id) as id'])->first();
         $data = ['id' => $max->id + 1] + $data;
         $this->query = "INSERT INTO {$this->table} ($cols) VALUES ";
         $this->buildInsert($data, $typeColumn);
         $stmt = $this->executeQuery($this->query, $this->bindInserts);
         if (empty($stmt)) {
-			return false;
+            return false;
         }
-		if( sqlsrv_execute( $stmt ) === false ) {
-			log_db(sqlsrv_errors(), "save: ");
-			if (DEBUG) {
-				die(print_r(sqlsrv_errors(), true));
-			}
-			return false; 
-	    }
-		sqlsrv_free_stmt($stmt);
+        if(sqlsrv_execute($stmt) === false) {
+            log_db(sqlsrv_errors(), "save: ");
+            if (DEBUG) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+            return false;
+        }
+        sqlsrv_free_stmt($stmt);
         return true;
     }
 
-    public function findOrCreate($data = array())
+    public function findOrCreate($data = array(), $checkFields = array())
     {
-        $find = $this->select()->where($data)->get();
+        $find = $this->select()->where($checkFields)->get();
         if (count($find) > 0) {
             return $find;
         }
-        $this->save($data);
+        $this->create($data);
         $find = $this->select()->where($data)->get();
         return $find;
     }
@@ -184,16 +184,16 @@ abstract class DBCRUD
         $this->buildWhere($data);
         $stmt = $this->executeQuery($this->query, $this->bindWheres);
         if (empty($stmt)) {
-			return false;
+            return false;
         }
-		if( sqlsrv_execute( $stmt ) === false ) {
-			log_db(sqlsrv_errors(), "save: ");
-			if (DEBUG) {
-				die(print_r(sqlsrv_errors(), true));
-			}
-			return false; 
-	    }
-		sqlsrv_free_stmt($stmt);
+        if(sqlsrv_execute($stmt) === false) {
+            log_db(sqlsrv_errors(), "save: ");
+            if (DEBUG) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+            return false;
+        }
+        sqlsrv_free_stmt($stmt);
         return true;
     }
 
@@ -213,7 +213,7 @@ abstract class DBCRUD
     public function find($id)
     {
         $this->select()
-			->where([
+            ->where([
             'id' => $id
         ]);
         $data = $this->get();
@@ -381,10 +381,10 @@ abstract class DBCRUD
                 $kBind .= 's';
                 $vBind[] =  null;
             } else {
-				if ($isnull == 'NO') {
-					throw new Exception("$col cannot empty");
-				}
-				$kBind .= 's';
+                if ($isnull == 'NO') {
+                    throw new Exception("$col cannot empty");
+                }
+                $kBind .= 's';
                 if (in_array($type, self::T_NUMERIC)) {
                     $vBind[] = $isnull == 'NO' ? 0 : null;
                 } else {
@@ -402,24 +402,24 @@ abstract class DBCRUD
         $stmt = $this->executeQuery($this->query, $this->bindWheres);
 
         if (empty($stmt)) {
-			return arr_to_obj([], false);
+            return arr_to_obj([], false);
         }
-		if( sqlsrv_execute( $stmt ) === false ) {
-			log_db(sqlsrv_errors(), "Execute: ");
-			if (DEBUG) {
-				die(print_r(sqlsrv_errors(), true));
-			}
-			return arr_to_obj([], false);
-	    }
-		$data = array();
-		while ($a = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-			$data[] = $a;
-		}
-		
-		$rows_affected = sqlsrv_rows_affected( $stmt);
+        if(sqlsrv_execute($stmt) === false) {
+            log_db(sqlsrv_errors(), "Execute: ");
+            if (DEBUG) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+            return arr_to_obj([], false);
+        }
+        $data = array();
+        while ($a = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $data[] = $a;
+        }
+
+        $rows_affected = sqlsrv_rows_affected($stmt);
         $this->numRowsEffect = $rows_affected >= 0 ? $rows_affected : 0;
         /* free results */
-		sqlsrv_free_stmt($stmt);
+        sqlsrv_free_stmt($stmt);
         $max = count($data);
         if ($index >= 0) {
             if ($index >= $max) {
@@ -481,7 +481,7 @@ abstract class DBCRUD
         return $this->numRowsEffect;
     }
 
-	private function getTypeColumn($table = '')
+    private function getTypeColumn($table = '')
     {
         $table = empty($table) ? $this->table : $table;
         $typeColumns = $this->select(['COLUMN_NAME', 'DATA_TYPE', 'IS_NULLABLE'], '', 'information_schema.COLUMNS')
@@ -500,8 +500,8 @@ abstract class DBCRUD
             ];
         }
 
-		// dd($data );
-		
+        // dd($data );
+
         return $data;
     }
 
