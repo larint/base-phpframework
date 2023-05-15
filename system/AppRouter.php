@@ -60,9 +60,14 @@ class AppRouter
         if (substr($pathPrefix, 0, 1) != '/') {
             throw new Exception('Router name without the "/" character at the beginning');
         }
-        self::$pathPrefix = $pathPrefix;
+        self::$pathPrefix .= $pathPrefix;
         call_user_func($handler);
         self::$pathPrefix = '';
+    }
+
+    public static function prefix($pathPrefix, $handler)
+    {
+        self::group($pathPrefix, $handler);
     }
 
     public static function action($path, $handler, $middleware = array())
