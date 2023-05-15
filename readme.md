@@ -14,7 +14,11 @@ npx dotenv-vault pull
 ### Kết hợp với middleware như sau, cso thể khai báo nhiều middleware thành mảng, tên middleware phải giống với tên file php
 
 ```
-Router::site(function() {
+Router::admin("/admin", function () {
+    Router::get("/", 'HomeController@index', 'admin');
+});
+
+Router::web(function() {
 	Router::get('/', 'HomeController@index', 'home', ['Authenticated']);
 
 	Router::group("/auth", function() {

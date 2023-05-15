@@ -38,7 +38,7 @@ class AppRouter
     public const METHOD_NOT_FOUND = 1;
     public const ROUTER_NOT_FOUND = 2;
 
-    public static function site($handler)
+    public static function web($handler)
     {
         self::$request = REQUEST_SITE;
         call_user_func($handler);
