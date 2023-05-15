@@ -192,7 +192,7 @@ class AppRouter
                 $args = [];
                 $middleware = [];
             }
-            $pathApp = self::isRequestAdmin() ? PATH_ADMIN : PATH_SITE;
+            $pathApp = self::isRequestAdmin() ? PATH_ADMIN : PATH_WEB;
             // Include controller
             include_once PATH_SYSTEM . '/core/AppInit.php';
 

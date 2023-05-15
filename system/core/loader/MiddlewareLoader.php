@@ -6,7 +6,7 @@ class MiddlewareLoader
     public function __construct($request)
     {
         $this->request = $request;
-        $this->pathMiddleware = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
+        $this->pathMiddleware = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_WEB;
     }
 
     public function load() {

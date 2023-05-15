@@ -500,7 +500,7 @@ if (!function_exists('config')) {
         if ($key == '') {
             throw new Exception("key config empty", 1);
         }
-        $files1 = glob(PATH_SITE . '/config/*.php');
+        $files1 = glob(PATH_WEB . '/config/*.php');
         $files2 = glob(PATH_ADMIN . '/config/*.php');
         $files = array_merge($files1, $files2);
         $configArr = [];

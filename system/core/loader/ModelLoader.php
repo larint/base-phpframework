@@ -6,7 +6,7 @@ class ModelLoader
     public function __construct($request)
     {
         $this->request = $request;
-        $this->pathModel = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
+        $this->pathModel = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_WEB;
     }
 
     public function setViewComposer() {

@@ -5,7 +5,7 @@ class ConfigLoader
 	public function __construct($request)
 	{
 		$this->request = $request;
-		$this->pathConfig = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_SITE;
+		$this->pathConfig = ($request == REQUEST_ADMIN) ? PATH_ADMIN : PATH_WEB;
 	}
 
     /**

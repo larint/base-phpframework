@@ -70,7 +70,7 @@ class Auth
 		SessionApp::set(SESSION_NAME, serialize($user));
 		if ($rememberMe) {
 			include_once PATH_SYSTEM . '/core/crud/Model.php';
-			include_once PATH_SITE . '/models/Account.php';
+			include_once PATH_WEB . '/models/Account.php';
 			$account = new Account;
 			$token = gen_token();
 			$account->update([
@@ -94,7 +94,7 @@ class Auth
 		$userToken = CookieApp::get(SESSION_NAME);
 		if ($userToken) {
 			include_once PATH_SYSTEM . '/core/crud/Model.php';
-			include_once PATH_SITE . '/models/Account.php';
+			include_once PATH_WEB . '/models/Account.php';
 			$account = new Account;
 			$user = $account->select(['id'])
 				->where([
