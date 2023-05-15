@@ -102,6 +102,22 @@ Một thẻ input tên token sẽ được tạo ra như dưới:
 Khai báo biến và truyền vào view con khi include
 
 ```
+File: layout.php vói tag @breadcrumb
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        @include partials/main_sidebar
+
+        <div class="content-wrapper">
+            @breadcrumb
+            <section class="content">
+                @main_content
+            </section>
+        </div>
+
+        @include partials/footer
+    </div>
+</body>
+
 File: partials/breadcrumb.php
 <div class="content-header">
     <div class="container-fluid">
