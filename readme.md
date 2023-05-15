@@ -99,10 +99,10 @@ Một thẻ input tên token sẽ được tạo ra như dưới:
 <input type="hidden" name="_token" value="HQf0LLhAST3CMRkYXk81o4bxNXXa92JDgvHTRKkl">
 ```
 
-Khai áo biến và truyền vào view con khi include
+Khai báo biến và truyền vào view con khi include
 
 ```
-file: partials/breadcrumb.php
+File: partials/breadcrumb.php
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
