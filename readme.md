@@ -99,6 +99,47 @@ Một thẻ input tên token sẽ được tạo ra như dưới:
 <input type="hidden" name="_token" value="HQf0LLhAST3CMRkYXk81o4bxNXXa92JDgvHTRKkl">
 ```
 
+Khai áo biến và truyền vào view con khi include
+
+```
+file: partials/breadcrumb.php
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0"><?= $pageTitle ?></h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <?php foreach ($breadcrumb as $key => $item) :?>
+                    <li class="breadcrumb-item <?= $item['active'] ? 'active' : '' ?>">
+                        <?php if($item['active']): ?>
+                        <span><?= $item['title'] ?></span>
+                        <?php else: ?>
+                        <a href="<?= $item['link'] ?>"><?= $item['title'] ?></a>
+                        <?php endif; ?>
+                    </li>
+                    <?php endforeach; ?>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+File: home.php
+@breadcrumb
+<?php
+    $pageTitle = 'Dashboard';
+$breadcrumb = [
+    ['title' => 'Home', 'link' => route('dashboard'), 'active' => false],
+    ['title' => 'Dashboard', 'link' => '', 'active' => true]
+];
+?>
+@include partials.breadcrumb
+@end_breadcrumb
+
+```
+
 #### Truyền dữ liệu cho các view
 
 khai báo các biến cần truyền đi trong hàm pass() của class ViewComposer và dùng hàm passData() để khai báo truyền biến dữ liệu,
