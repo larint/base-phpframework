@@ -2,21 +2,27 @@
 
 class ValidateRequest
 {
-
-    public function __construct( $args )
+    public function __construct($args)
     {
         foreach($args as $key => $value) {
-            $this->$key = $value;
+            if ($value == "true") {
+                $this->$key = true;
+            } elseif ($value == "false") {
+                $this->$key = false;
+            } else {
+                $this->$key = $value;
+            }
         }
     }
 
-    public function validate($rules = array(), $redirect = false) {
+    public function validate($rules = array(), $redirect = false)
+    {
         $error = [];
         foreach ($rules as $param => $rule) {
             $ruleArr = explode('|', $rule);
             foreach ($ruleArr as $ruleHandle) {
                 $handle = explode(':', $ruleHandle);
-                $extend = isset($handle[1]) ? $handle[1] : ''; 
+                $extend = isset($handle[1]) ? $handle[1] : '';
                 $func = 'check' . ucfirst($handle[0]);
                 $check = $this->{$func}($param, $extend);
                 if (!$check) {
@@ -28,10 +34,11 @@ class ValidateRequest
                 }
             }
         }
-        return true; 
+        return true;
     }
 
-    private function checkRequired($param, $extend ='') {
+    private function checkRequired($param, $extend ='')
+    {
         $value = $this->$param;
         if (empty($value)) {
             $this->error[$param] = lang('validate.required', ['field' => $param]);
@@ -40,7 +47,8 @@ class ValidateRequest
         return true;
     }
 
-    private function checkMin($param, $minSize ='') {
+    private function checkMin($param, $minSize ='')
+    {
         $value = $this->$param;
         if (strlen($value) < $minSize) {
             $this->error[$param] = lang('validate.min', ['field' => $param, 'min' => $minSize]);
@@ -49,7 +57,8 @@ class ValidateRequest
         return true;
     }
 
-    private function checkMax($param, $mazSize ='') {
+    private function checkMax($param, $mazSize ='')
+    {
         $value = $this->$param;
         if (strlen($value) > $mazSize) {
             $this->error[$param] = lang('validate.max', ['field' => $param, 'max' => $mazSize]);
@@ -58,7 +67,8 @@ class ValidateRequest
         return true;
     }
 
-    private function checkEmail($param, $extend ='') {
+    private function checkEmail($param, $extend ='')
+    {
         $value = $this->$param;
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             $this->error[$param] = lang('validate.email');
@@ -67,7 +77,8 @@ class ValidateRequest
         return true;
     }
 
-    private function checkString($param, $extend ='') {
+    private function checkString($param, $extend ='')
+    {
         $value = $this->$param;
         if (preg_match("/^[a-zA-Z]+$/", $value) != 1) {
             $this->error[$param] = lang('validate.string', ['field' => $param]);
@@ -76,7 +87,8 @@ class ValidateRequest
         return true;
     }
 
-    private function checkNumber($param, $extend ='') {
+    private function checkNumber($param, $extend ='')
+    {
         $value = $this->$param;
         if (preg_match("/^[0-9]+$/", $value) != 1) {
             $this->error[$param] = lang('validate.number', ['field' => $param]);
@@ -85,7 +97,8 @@ class ValidateRequest
         return true;
     }
 
-    private function checkUrl($param, $extend ='') {
+    private function checkUrl($param, $extend ='')
+    {
         $value = $this->$param;
         if (preg_match("/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&=]*)/", $value) != 1) {
             $this->error[$param] = lang('validate.url', ['field' => $param]);
@@ -94,7 +107,8 @@ class ValidateRequest
         return true;
     }
 
-    private function checkUnique($param, $extend ='') {
+    private function checkUnique($param, $extend ='')
+    {
         $value = $this->$param;
         if (empty($extend)) {
             throw new Exception("Syntax must be unique:table_name.column_name");
