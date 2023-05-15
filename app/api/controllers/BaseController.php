@@ -4,7 +4,7 @@
 
  * BaseController
 
- * @filesource apps/site/controllers/BaseController.php
+ * @filesource apps/admin/controllers/BaseController.php
 
  */
 
@@ -12,7 +12,7 @@ abstract class BaseController extends AppInit
 {
     public function __construct()
     {
-        parent::__construct(REQUEST_WEB);
+        parent::__construct(REQUEST_API);
     }
 
     public function __destruct()

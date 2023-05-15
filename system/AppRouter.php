@@ -32,7 +32,7 @@ class AppRouter
     private static $pathPrefix = '';
 
 
-    private static $request = REQUEST_SITE; // check is a site or admin request
+    private static $request = REQUEST_WEB; // check is a site or admin request
     public const DEFAULT_CONTROLLERS = ['TokenController', 'ErrorController'];
     public const REGVAL = '/({.+?})/';
     public const METHOD_NOT_FOUND = 1;
@@ -40,7 +40,14 @@ class AppRouter
 
     public static function web($handler)
     {
-        self::$request = REQUEST_SITE;
+        self::$request = REQUEST_WEB;
+        call_user_func($handler);
+    }
+
+    public static function api($handler)
+    {
+        self::$pathPrefix = '/api';
+        self::$request = REQUEST_API;
         call_user_func($handler);
     }
 
@@ -145,6 +152,7 @@ class AppRouter
             $routeName = key($resource);
             $handler = $resource[$routeName][self::$handlerKey];
             $middleware = $resource[$routeName][self::$middleware];
+            $requestFrom = $resource[$routeName][self::$requestKey];
             if(preg_match(self::REGVAL, $routeName)) {
                 list($args, $uri, $routeName) = self::getInfoRouter($requestUri, $routeName);
             }
@@ -161,12 +169,24 @@ class AppRouter
             if(is_string($handler) && strpos($handler, '@')) {
                 list($controller, $action) = explode('@', $handler);
                 // $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
-                return [ self::$controller => $controller, self::$action => $action, self::$args => $args, self::$middleware => $middleware];
+                return [
+                    self::$controller => $controller,
+                    self::$action => $action,
+                    self::$args => $args,
+                    self::$middleware => $middleware,
+                    self::$requestKey => $requestFrom
+                ];
             }
 
             if(is_callable($handler)) {
                 // $args = json_decode(json_encode($args, JSON_FORCE_OBJECT)); // format to object
-                return [ self::$controller => null, self::$action => $handler, self::$args => $args, self::$middleware => $middleware];
+                return [
+                    self::$controller => null,
+                    self::$action => $handler,
+                    self::$args => $args,
+                    self::$middleware => $middleware,
+                    self::$requestKey => $requestFrom
+                ];
             }
 
             return call_user_func_array($handler, $args);
@@ -186,13 +206,23 @@ class AppRouter
                 $action = $runs[self::$action];
                 $args = $runs[self::$args];
                 $middleware = $runs[self::$middleware];
+                $requestFrom = $runs[self::$requestKey];
             } else {
                 $controller = 'ErrorController';
                 $action = 'notFound';
                 $args = [];
                 $middleware = [];
+                $requestFrom = null;
             }
-            $pathApp = self::isRequestAdmin() ? PATH_ADMIN : PATH_WEB;
+
+            if ($requestFrom == REQUEST_ADMIN) {
+                $pathApp = PATH_ADMIN;
+            } elseif ($requestFrom == REQUEST_WEB) {
+                $pathApp = PATH_WEB;
+            } elseif ($requestFrom == REQUEST_API) {
+                $pathApp = PATH_API;
+            }
+
             // Include controller
             include_once PATH_SYSTEM . '/core/AppInit.php';
 
@@ -344,30 +374,6 @@ class AppRouter
 
         }, $routeName);
         return $routeWithReg;
-    }
-
-    protected static function isRequestAdmin()
-    {
-        $requestMethod = self::getRequest();
-        $requestUri = self::delLastSlashUri($_GET['url']);
-
-        if (empty($requestMethod) || !in_array($requestMethod, array_keys(self::$routes))) {
-            return false;
-        }
-
-        foreach (self::$routes[$requestMethod]  as $resource) {
-            $routeName = key($resource);
-            $request = $resource[$routeName]['request'];
-            $routeWithReg = '';
-            if(preg_match(self::REGVAL, $routeName)) {
-                $routeWithReg = self::parseRegexRouter($routeName);
-            }
-
-            if (preg_match("#^$routeWithReg$#", $requestUri) || $requestUri == $routeName) {
-                return $request == REQUEST_ADMIN;
-            }
-        }
-        return false;
     }
 
     private static function validateToken()

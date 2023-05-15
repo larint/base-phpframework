@@ -11,6 +11,7 @@ define('PATH_SYSTEM', PATH_ROOT . '/system');
 define('PATH_PUBLIC', PATH_ROOT . '/public');
 define('PATH_APP', PATH_ROOT . '/app');
 define('PATH_WEB', PATH_APP . '/web');
+define('PATH_API', PATH_APP . '/api');
 define('PATH_ADMIN', PATH_APP . '/admin');
 define('PATH_VIEW_ADMIN', PATH_ADMIN . '/views');
 define('PATH_VIEW_SITE', PATH_WEB . '/views');
@@ -21,8 +22,9 @@ define('PATH_STORAGE', PATH_SYSTEM . '/storage');
 define('ERROR_CONTROLLER', 'ErrorController@index');
 
 define('REQUEST_ADMIN', 'admin');
-define('REQUEST_SITE', 'site');
+define('REQUEST_WEB', 'web');
 define('REQUEST_SYSTEM', 'system');
+define('REQUEST_API', 'api');
 
 if (!file_exists(PATH_ROOT . '/.env')) {
     dd('.env system configuration file does not exist');

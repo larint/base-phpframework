@@ -8,7 +8,7 @@ class TemplateLoader
         $this->request = $request;
         if ($request == REQUEST_ADMIN) {
             $this->pathView = PATH_VIEW_ADMIN;
-        } elseif ($request == REQUEST_SITE) {
+        } elseif ($request == REQUEST_WEB) {
             $this->pathView = PATH_VIEW_SITE;
         } elseif ($request == REQUEST_SYSTEM) {
             $this->pathView = PATH_VIEW_SYSTEM;
