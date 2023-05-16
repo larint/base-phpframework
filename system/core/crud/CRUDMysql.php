@@ -40,6 +40,9 @@ abstract class DBCRUD
     {
         $stmt = $this->conn->prepare($sql);
 
+        if (LOG_QUERY) {
+            log_db($sql);
+        }
         if ($stmt === false) {
             log_db("$sql / " .$this->conn->error);
             $time = date("h:m:s d/m/Y", time());
@@ -72,6 +75,15 @@ abstract class DBCRUD
         $cols = count($fields) > 0 ? implode(',', $fields) : '*';
         $table = empty($table) ? $this->table : $table;
         $this->query = "SELECT $cols FROM {$table}" . (!empty($alias) ? " AS $alias" : '');
+        return $this;
+    }
+
+    public function limit($offset = 0, $limit = 10)
+    {
+        if ($offset < 0) {
+            throw new Exception("Parameter \$offset in 'limit' method must be greater than 0", 1);
+        }
+        $this->query .= " LIMIT $offset, $limit";
         return $this;
     }
 
@@ -338,6 +350,7 @@ abstract class DBCRUD
         } catch (\Exception $e) {
             log_db($e->getMessage());
         }
+
         return $this;
     }
 
@@ -504,6 +517,72 @@ abstract class DBCRUD
     public function getNumRowsEffect()
     {
         return $this->numRowsEffect;
+    }
+
+    public function paginate($page = 1, $limit = 10, $range = 3)
+    {
+        $numrows = $this->count();
+
+        $totalPages = ceil($numrows / $limit);
+
+        // get the current page or set a default
+        $currentPage = $page;
+
+        // if current page is greater than total pages...
+        if ($currentPage > $totalPages) {
+            $currentPage = $totalPages;
+        }
+        if ($currentPage < 1) {
+            $currentPage = 1;
+        }
+
+        $currentUrl = current_url(true);
+
+        // the offset of the list, based on current page
+        $from = ($page - 1) * $limit;
+
+        // get the info from the db
+        $data = $this->select()->limit($from, $limit)->get();
+
+        /******  build the pagination links ******/
+        $htmlLink = '';
+        // if not on page 1, don't show back links
+        if ($currentPage > 1) {
+            $htmlLink .= " <a href='$currentUrl?page=1'><<</a> ";
+            // get previous page num
+            $prevpage = $currentPage - 1;
+            $htmlLink .= " <a href='$currentUrl?page=$prevpage'><</a> ";
+        }
+
+        // loop to show links to range of pages around current page
+        for ($x = ($currentPage - $range); $x < (($currentPage + $range) + 1); $x++) {
+            // if it's a valid page number...
+            if (($x > 0) && ($x <= $totalPages)) {
+                // if we're on current page...
+                if ($x == $currentPage) {
+                    // 'highlight' it but don't make a link
+                    $htmlLink .= "<a href='#' class='active'>$x</a> ";
+
+                } else {
+                    $htmlLink .= " <a href='$currentUrl?page=$x'>$x</a> ";
+                }
+            }
+        }
+
+        // if not on last page, show forward and last page links
+        if ($currentPage != $totalPages) {
+            // get next page
+            $nextpage = $currentPage + 1;
+            // echo forward link for next page
+            $htmlLink .= " <a href='$currentUrl?page=$nextpage'>></a> ";
+            // echo forward link for lastpage
+            $htmlLink .= " <a href='$currentUrl?page=$totalPages'>>></a> ";
+        }
+        $htmlLink = '<div class="pagination">'.$htmlLink.'</div>';
+        return arr_to_obj([
+            'data' => $data,
+            'link' => $htmlLink
+        ]);
     }
 
     private function getTypeColumn($table = '')

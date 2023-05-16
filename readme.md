@@ -580,6 +580,28 @@ redirect_back(['error' => [_t('message.email_exist')]]);
 }
 ```
 
+### Sử dụng phân trang dữ liệu, trả ra mảng data và link phân trang
+
+```
+$albums = $this->album->select()->paginate($page, $limit);
+
+^ {#51 ▼
+  +"data": {#44 ▼
+    +"0": {#71 ▶}
+    +"1": {#60 ▶}
+    +"2": {#59 ▶}
+    +"3": {#58 ▶}
+    +"4": {#57 ▶}
+    +"5": {#56 ▶}
+    +"6": {#55 ▶}
+    +"7": {#54 ▶}
+    +"8": {#53 ▶}
+    +"9": {#52 ▶}
+  }
+  +"link": "<div class="pagination"><a href='#' class='active'>1</a>  <a href='http://wedding.test/admin/album?page=2'>2</a>  <a href='http://wedding.test/admin/album?page= ▶"
+}
+```
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
