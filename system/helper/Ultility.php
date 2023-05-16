@@ -472,9 +472,14 @@ if (!function_exists('arr_to_obj')) {
 }
 
 if (!function_exists('current_url')) {
-    function current_url()
+    function current_url($queryExclude = false)
     {
-        return $_SERVER['REQUEST_URI'];
+        $url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        if ($queryExclude) {
+            $parsed = parse_url($url);
+            return $parsed['scheme']. '://'. $parsed['host']. $parsed['path'];
+        }
+        return $url;
     }
 }
 
@@ -531,8 +536,7 @@ if (!function_exists('route')) {
 if (!function_exists('class_active_url')) {
     function class_active_url($routerName, $defaultClass = 'active')
     {
-        $url_parts = parse_url(route($routerName));
-        return current_url() == $url_parts['path'] ? $defaultClass : '';
+        return current_url() == route($routerName) ? $defaultClass : '';
     }
 }
 
