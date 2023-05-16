@@ -31,7 +31,6 @@ class AppRouter
     private static $args = 'args';
     private static $pathPrefix = '';
 
-
     private static $request = REQUEST_WEB; // check is a site or admin request
     public const DEFAULT_CONTROLLERS = ['TokenController', 'ErrorController'];
     public const REGVAL = '/({.+?})/';
@@ -162,6 +161,14 @@ class AppRouter
             if (in_array($requestMethod, array_diff(array_keys(self::$routes), ['GET']))) {
                 $args = isset($_POST) ? json_decode(json_encode($_POST, JSON_FORCE_OBJECT)) : null;
             }
+            // merge query and args
+            $queryString = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+            if ($queryString) {
+                $querieParames = array();
+                parse_str($queryString, $querieParames);
+                $args = array_merge($args, $querieParames);
+            }
+
             // action
             if(is_string($handler) && strpos($handler, '@')) {
                 list($controller, $action) = explode('@', $handler);

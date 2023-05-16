@@ -44,3 +44,4 @@ define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : "localhost");
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : "root");
 define("DB_PASS", isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : "");
 define("DB_NAME", isset($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : "");
+define("LOG_QUERY", isset($_ENV['LOG_QUERY']) ? $_ENV['LOG_QUERY'] : false);
