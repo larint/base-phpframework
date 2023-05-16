@@ -500,7 +500,7 @@ if (!function_exists('config')) {
         if ($key == '') {
             throw new Exception("key config empty", 1);
         }
-        $files1 = glob(PATH_WEB . '/config/*.php');
+        $files1 = glob(PATH_SITE . '/config/*.php');
         $files2 = glob(PATH_ADMIN . '/config/*.php');
         $files = array_merge($files1, $files2);
         $configArr = [];
@@ -525,6 +525,14 @@ if (!function_exists('route')) {
     function route($alias, $params = array())
     {
         return AppRouter::name($alias, $params);
+    }
+}
+
+if (!function_exists('class_active_url')) {
+    function class_active_url($routerName, $defaultClass = 'active')
+    {
+        $url_parts = parse_url(route($routerName));
+        return current_url() == $url_parts['path'] ? $defaultClass : '';
     }
 }
 

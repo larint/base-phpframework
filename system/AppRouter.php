@@ -38,6 +38,12 @@ class AppRouter
     public const METHOD_NOT_FOUND = 1;
     public const ROUTER_NOT_FOUND = 2;
 
+    public static function admin($pathPrefix, $handler)
+    {
+        self::$request = REQUEST_ADMIN;
+        self::group($pathPrefix, $handler);
+    }
+
     public static function web($handler)
     {
         self::$request = REQUEST_WEB;
@@ -51,17 +57,6 @@ class AppRouter
         call_user_func($handler);
     }
 
-    public static function admin($pathPrefix, $handler)
-    {
-        if (substr($pathPrefix, 0, 1) != '/') {
-            throw new Exception('Router name without the "/" character at the beginning');
-        }
-        self::$pathPrefix = $pathPrefix;
-        self::$request = REQUEST_ADMIN;
-        call_user_func($handler);
-        self::$pathPrefix = '';
-    }
-
     public static function group($pathPrefix, $handler)
     {
         if (substr($pathPrefix, 0, 1) != '/') {
@@ -69,7 +64,9 @@ class AppRouter
         }
         self::$pathPrefix .= $pathPrefix;
         call_user_func($handler);
-        self::$pathPrefix = '';
+        // get parent path
+        $basePath = dirname(self::$pathPrefix);
+        self::$pathPrefix = $basePath == '/' ? '' : $basePath;
     }
 
     public static function prefix($pathPrefix, $handler)
