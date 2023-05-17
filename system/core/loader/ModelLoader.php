@@ -31,7 +31,7 @@ class ModelLoader
         }
         include_once PATH_SYSTEM . '/core/crud/Model.php';
         if ($loadAll) {
-            $files = glob(PATH_APP . '/models/*.php');
+            $files = glob(PATH_APP ."/models/{,*/,*/*/,*/*/*/}*.php", GLOB_BRACE);
 
             foreach ($files as $fileName) {
                 $objName = basename($fileName, '.php');
