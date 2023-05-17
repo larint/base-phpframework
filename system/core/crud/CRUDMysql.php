@@ -523,10 +523,6 @@ abstract class DBCRUD
     {
         extract($params);
         $numrows = $this->count();
-        if ($limit > $numrows) {
-            throw new Exception("Parameter 'limit' exceeds the maximum number of data lines by $numrows record.");
-        }
-
         $extendQuery = '';
         if (isset($extent)) {
             $extendQuery = [];
@@ -536,7 +532,7 @@ abstract class DBCRUD
             $extendQuery = "&" . implode('&', $extendQuery);
         }
 
-        $totalPages = ceil($numrows / $limit);
+        $totalPages = $numrows > 0 ? ceil($numrows / $limit) : 0;
 
         // get the current page or set a default
         $currentPage = $page;
@@ -561,10 +557,10 @@ abstract class DBCRUD
         $htmlLink = '';
         // if not on page 1, don't show back links
         if ($currentPage > 1) {
-            $htmlLink .= "<a href='$currentUrl?page=1$extendQuery'><<</a>";
+            $htmlLink .= " <a href='$currentUrl?page=1$extendQuery'><<</a> ";
             // get previous page num
             $prevpage = $currentPage - 1;
-            $htmlLink .= "<a href='$currentUrl?page=$prevpage$extendQuery'><</a>";
+            $htmlLink .= " <a href='$currentUrl?page=$prevpage$extendQuery'><</a> ";
         }
 
         // loop to show links to range of pages around current page
@@ -577,21 +573,24 @@ abstract class DBCRUD
                     $htmlLink .= "<span class='active'>$x</span>";
 
                 } else {
-                    $htmlLink .= "<a href='$currentUrl?page=$x$extendQuery'>$x</a>";
+                    $htmlLink .= " <a href='$currentUrl?page=$x$extendQuery'>$x</a> ";
                 }
             }
         }
 
         // if not on last page, show forward and last page links
-        if ($currentPage != $totalPages) {
+        if ($totalPages > 0 && $currentPage != $totalPages) {
             // get next page
             $nextpage = $currentPage + 1;
             // echo forward link for next page
-            $htmlLink .= "<a href='$currentUrl?page=$nextpage$extendQuery'>></a>";
+            $htmlLink .= " <a href='$currentUrl?page=$nextpage$extendQuery'>></a> ";
             // echo forward link for lastpage
-            $htmlLink .= "<a href='$currentUrl?page=$totalPages$extendQuery'>>></a>";
+            $htmlLink .= " <a href='$currentUrl?page=$totalPages$extendQuery'>>></a> ";
         }
-        $htmlLink = "<div class='pagination'>$htmlLink <span>$currentPage/$totalPages</span></div>";
+        if ($totalPages > 0) {
+            $htmlLink = "<div class='pagination'>$htmlLink <span>$currentPage/$totalPages</span></div>";
+        }
+
         return arr_to_obj([
             'data' => $data,
             'link' => $htmlLink

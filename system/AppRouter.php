@@ -159,7 +159,7 @@ class AppRouter
             }
 
             if (in_array($requestMethod, array_diff(array_keys(self::$routes), ['GET']))) {
-                $args = isset($_POST) ? json_decode(json_encode($_POST, JSON_FORCE_OBJECT)) : null;
+                $args = isset($_POST) ? json_decode(json_encode($_POST)) : null;
             }
             // merge query and args
             $queryString = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
