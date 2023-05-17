@@ -198,7 +198,7 @@ $data = $this->account->select(['name', 'email', 'password_display'])
 				"email" => "abc@gmail.com",
                 "deleted_at" => DBCRUD::IS_NULL
 			]) | whereOr
-			->order('id') | order('id', 'DESC') | order('id,name,email', 'DESC')
+			->order(['id' => 'asc']) | order(['id' => 'desc', 'view' => 'desc'])
 			->get(index) | first() | last();
 ```
 
@@ -607,6 +607,8 @@ $albums = $this->album->paginate(['*'], [
 	'limit' => 10,
 	'range' => 3,
 	'extent' => ['book' => 12, 'cate' => 'blog']
+], [
+	'date(created)' => 'desc'
 ]);
 
 link sẽ có dạng như sau: admin/album?page=6&book=12&cate=blog

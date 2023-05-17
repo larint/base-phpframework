@@ -292,10 +292,15 @@ abstract class DBCRUD
         return $this->buildWhere($fieldsChange, 'OR');
     }
 
-    public function order($cols, $type = 'ASC')
+    public function order($order = array())
     {
-        $cols = str_replace(' ', '', $cols);
-        $this->query .= " ORDER BY $cols $type";
+        $orderQuery = [];
+        foreach ($order as $key => $value) {
+            $orderQuery[] = "$key $value";
+        }
+        $orderQuery = implode(',', $orderQuery);
+
+        $this->query .= " ORDER BY $orderQuery";
         return $this;
     }
 
@@ -369,7 +374,6 @@ abstract class DBCRUD
         $vBind = [];
         $kBind = '';
         foreach ($data as $col => $value) {
-            // incrate column
             if (contain_str($col, $value)) {
                 preg_match("/\d+/i", $value, $match);
                 $value = preg_replace("/\d+/i", '?', $value);
@@ -538,7 +542,7 @@ abstract class DBCRUD
         return $this->numRowsEffect;
     }
 
-    public function paginate($fields = array(), $params = array())
+    public function paginate($fields = array(), $params = array(), $order = array())
     {
         extract($params);
         $numrows = $this->count();
@@ -570,7 +574,11 @@ abstract class DBCRUD
         $from = ($page - 1) * $limit;
 
         // get the info from the db
-        $data = $this->select($fields)->limit($from, $limit)->get();
+        if (count($order) > 0) {
+            $data = $this->select($fields)->order($order)->limit($from, $limit)->get();
+        } else {
+            $data = $this->select($fields)->limit($from, $limit)->get();
+        }
 
         /******  build the pagination links ******/
         $htmlLink = '';
