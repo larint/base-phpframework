@@ -8,13 +8,13 @@ class Model extends DBCRUD
         if ($result = $this->conn->query($sql)) {
             $this->numRowsEffect = $result->num_rows;
 
-            while ($row = $result->fetch_row()) {
+            while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
                 $data[] = $row;
             }
 
             $result->free_result();
         }
-        return arr_to_obj($data);
+        return arr_to_obj($data, false);
     }
 
 }
