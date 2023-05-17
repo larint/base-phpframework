@@ -561,8 +561,7 @@ abstract class DBCRUD
                 // if we're on current page...
                 if ($x == $currentPage) {
                     // 'highlight' it but don't make a link
-                    $htmlLink .= "<a href='#' class='active'>$x</a> ";
-
+                    $htmlLink .= "<span class='active'>$x</span>";
                 } else {
                     $htmlLink .= " <a href='$currentUrl?page=$x'>$x</a> ";
                 }
@@ -578,7 +577,7 @@ abstract class DBCRUD
             // echo forward link for lastpage
             $htmlLink .= " <a href='$currentUrl?page=$totalPages'>>></a> ";
         }
-        $htmlLink = '<div class="pagination">'.$htmlLink.'</div>';
+        $htmlLink = "<div class='pagination'>$htmlLink <span>$currentPage/$totalPages</span></div>";
         return arr_to_obj([
             'data' => $data,
             'link' => $htmlLink
