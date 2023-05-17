@@ -519,9 +519,22 @@ abstract class DBCRUD
         return $this->numRowsEffect;
     }
 
-    public function paginate($page = 1, $limit = 10, $range = 3)
+    public function paginate($fields = array(), $params = array())
     {
+        extract($params);
         $numrows = $this->count();
+        if ($limit > $numrows) {
+            throw new Exception("Parameter 'limit' exceeds the maximum number of data lines by $numrows record.");
+        }
+
+        $extendQuery = '';
+        if (isset($extent)) {
+            $extendQuery = [];
+            foreach ($extent as $key => $value) {
+                $extendQuery[] = "$key=$value";
+            }
+            $extendQuery = "&" . implode('&', $extendQuery);
+        }
 
         $totalPages = ceil($numrows / $limit);
 
@@ -542,16 +555,16 @@ abstract class DBCRUD
         $from = ($page - 1) * $limit;
 
         // get the info from the db
-        $data = $this->select()->limit($from, $limit)->get();
+        $data = $this->select($fields)->limit($from, $limit)->get();
 
         /******  build the pagination links ******/
         $htmlLink = '';
         // if not on page 1, don't show back links
         if ($currentPage > 1) {
-            $htmlLink .= " <a href='$currentUrl?page=1'><<</a> ";
+            $htmlLink .= "<a href='$currentUrl?page=1$extendQuery'><<</a>";
             // get previous page num
             $prevpage = $currentPage - 1;
-            $htmlLink .= " <a href='$currentUrl?page=$prevpage'><</a> ";
+            $htmlLink .= "<a href='$currentUrl?page=$prevpage$extendQuery'><</a>";
         }
 
         // loop to show links to range of pages around current page
@@ -562,8 +575,9 @@ abstract class DBCRUD
                 if ($x == $currentPage) {
                     // 'highlight' it but don't make a link
                     $htmlLink .= "<span class='active'>$x</span>";
+
                 } else {
-                    $htmlLink .= " <a href='$currentUrl?page=$x'>$x</a> ";
+                    $htmlLink .= "<a href='$currentUrl?page=$x$extendQuery'>$x</a>";
                 }
             }
         }
@@ -573,9 +587,9 @@ abstract class DBCRUD
             // get next page
             $nextpage = $currentPage + 1;
             // echo forward link for next page
-            $htmlLink .= " <a href='$currentUrl?page=$nextpage'>></a> ";
+            $htmlLink .= "<a href='$currentUrl?page=$nextpage$extendQuery'>></a>";
             // echo forward link for lastpage
-            $htmlLink .= " <a href='$currentUrl?page=$totalPages'>>></a> ";
+            $htmlLink .= "<a href='$currentUrl?page=$totalPages$extendQuery'>>></a>";
         }
         $htmlLink = "<div class='pagination'>$htmlLink <span>$currentPage/$totalPages</span></div>";
         return arr_to_obj([

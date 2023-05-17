@@ -580,11 +580,19 @@ redirect_back(['error' => [_t('message.email_exist')]]);
 }
 ```
 
-### Sử dụng phân trang dữ liệu, trả ra mảng data và link phân trang
+### Sử dụng phân trang dữ liệu, trả ra mảng data và link phân trang, tham số extent có thể bỏ qua
 
 ```
-$albums = $this->album->select()->paginate($page, $limit);
+$page = isset($request->page) ? $request->page : 1;
+$albums = $this->album->paginate(['*'], [
+	'page' => $page,
+	'limit' => 10,
+	'range' => 3,
+	'extent' => ['book' => 12, 'cate' => 'blog']
+]);
 
+link sẽ có dạng như sau: admin/album?page=6&book=12&cate=blog
+dữ liệu trả ra
 ^ {#51 ▼
   +"data": {#44 ▼
     +"0": {#71 ▶}
