@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        for (let i = 100; i < 400; i++) {
+            var a1 = 0.5 / 100 * i;
+            var a2 = 5  / 100 * i;
+            var a3 = 0.5 / 100 * i;
+            var a4 = 0.5 / 100 * i;
+            var a5 = 0.5 / 100 * i;
+            var a6 = 1.5 / 100 * i;
+            var a7 = 0.5 / 100 * i;
+            var a8 = 0.5 / 100 * i;
+            var a9 = 0.5 / 100 * i;
+            var a10 = 90 / 100 * i;
+
+            var tt = parseInt(a1 +  a2 +  a3 +  a4 +  a5 +  a6 +  a7 +  a8 +  a9 +  a10);
+            if (tt == i) {
+                // console.log(a1 , a2 ,  a3 ,  a4 ,  a5,  a6 ,  a7 ,  a8 ,  a9 ,  a10, tt); 
+            }
+            var duration = Math.floor(Math.random() * 3);
+            console.log(duration);
+        }
+
+        var spinRate = [{
+            spin_item_id: 1,
+            r: '0.43'
+        },{
+            spin_item_id: 3,
+            r: '2.43'
+        },{
+            spin_item_id: 48,
+            r: '0.43'
+        },{
+            spin_item_id: 5,
+            r: '0.43'
+        }];
+        var rrRate = 0.43;
+        var spinIds = spinRate.filter(function (e) {
+                var rateE = parseFloat(e.r);
+                return rateE == rrRate;
+            }).map(function (e) {
+                return e.spin_item_id;
+            });
+        console.log(spinIds);
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "required" : ":field là bắt buộc",
+    "min" : ":field yêu cầu tối thiểu :min ký tự",
+    "max" : ":field yêu cầu tối đa :max ký tự",
+    "email" : "Email không hợp lệ",
+    "string" : ":field phải là một chuỗi",
+    "number" : ":field phải là một chữ số",
+    "url" : ":field phải là liên kết hợp lệ",
+    "unique" : ":field đã tồn tại"
+}

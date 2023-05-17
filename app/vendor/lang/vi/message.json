@@ -1,0 +1,8 @@
+{
+    "login_failed" : "Đăng nhập không thành công",
+    "email_exist" : "Email đã tồn tại",
+    "register_failed" : "Đăng ký không thành công",
+    "error" : {
+        "404" : "Không tìm thấy trang"
+    }
+}

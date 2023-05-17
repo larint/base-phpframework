@@ -1,0 +1,16 @@
+{
+    "name": "mrq/base-phpframwork",
+    "authors": [
+        {
+            "name": "mrq",
+            "email": "mrq@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "vlucas/phpdotenv": "5.5.x-dev"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.4"
+    }
+}
