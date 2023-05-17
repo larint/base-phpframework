@@ -41,7 +41,7 @@ abstract class DBCRUD
         $stmt = $this->conn->prepare($sql);
 
         if (LOG_QUERY) {
-            log_db($sql);
+            log_db($sql .' '. json_encode($params));
         }
         if ($stmt === false) {
             log_db("$sql / " .$this->conn->error);
@@ -167,6 +167,17 @@ abstract class DBCRUD
         return $find;
     }
 
+    public function createOrUpdate($wheres = array(), $data = array(), $update = array())
+    {
+        $find = $this->select()->where($wheres)->get();
+        if (count($find) > 0) {
+            return $this->update($update, $wheres);
+        }
+        $this->create($data);
+        $find = $this->select()->where($data)->get();
+        return $find;
+    }
+
     public function createBulk($data = array())
     {
         foreach ($data as $row) {
@@ -174,7 +185,6 @@ abstract class DBCRUD
         }
         return true;
     }
-
 
     public function destroy($data = array())
     {
@@ -359,8 +369,17 @@ abstract class DBCRUD
         $vBind = [];
         $kBind = '';
         foreach ($data as $col => $value) {
-            $set[] = "$col = ?";
-            $vBind[] = $value;
+            // incrate column
+            if (contain_str($col, $value)) {
+                preg_match("/\d+/i", $value, $match);
+                $value = preg_replace("/\d+/i", '?', $value);
+                $set[] = "$col = $value";
+                $vBind[] = isset($match[0]) ? (int)$match[0] : '0';
+            } else {
+                $set[] = "$col = ?";
+                $vBind[] = $value;
+            }
+
             if (is_string($value)) {
                 $kBind .= 's';
             } elseif (is_numeric($value) || is_bool($value)) {

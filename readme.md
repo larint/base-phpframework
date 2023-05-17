@@ -429,6 +429,24 @@ $data = $this->account->update([
 			"id:=" => 2,
 			"name:like" => "abc",
 		]);
+
+tạo mới hoặc cập nhật data,
+createOrUpdate($wheres = array(), $data = array(), $update = array())
+
+$this->historyAccess->createOrUpdate([
+            'ip' => $ip,
+            'browser' => $browser,
+        ], [
+            'ip' => $ip,
+            'browser' => $browser,
+            'user_agent' => browser_info(),
+            'access_at' => current_time(),
+            'view' => 1
+        ], [
+            'access_at' => current_time(),
+            'view' => 'view + 1'
+        ]);
+
 ```
 
 _Câu truy vấn tương ứng:_
