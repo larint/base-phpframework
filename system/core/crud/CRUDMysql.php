@@ -15,10 +15,16 @@ abstract class DBCRUD
     public const T_STRING = ['varchar', 'char', 'mediumtext', 'longtext', 'text', 'timestamp'];
     public const T_DECIMAL = ['float', 'decimal', 'double', 'real'];
     public const T_DATETIME = ['datetime', 'timestamp'];
+    private static $conn = null;
 
     public function __construct()
     {
         $this->connectDB();
+    }
+
+    public function getConn()
+    {
+        return self::$conn;
     }
 
     public function startTransaction()
@@ -38,7 +44,7 @@ abstract class DBCRUD
 
     private function executeQuery($sql, $params)
     {
-        $stmt = $this->conn->prepare($sql);
+        $stmt = self::$conn->prepare($sql);
 
         if (LOG_QUERY) {
             log_db($sql .' '. json_encode($params));
@@ -647,13 +653,15 @@ abstract class DBCRUD
 
     private function connectDB()
     {
-        $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-        $this->conn->set_charset("utf8");
-        if (mysqli_connect_errno()) {
-            $error = mysqli_connect_error();
-            log_error($error);
-            if (DEBUG) {
-                die($error);
+        if (self::$conn == null) {
+            self::$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            self::$conn->set_charset("utf8");
+            if (mysqli_connect_errno()) {
+                $error = mysqli_connect_error();
+                log_error($error);
+                if (DEBUG) {
+                    die($error);
+                }
             }
         }
     }

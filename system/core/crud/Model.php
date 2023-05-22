@@ -5,7 +5,7 @@ class Model extends DBCRUD
     public function query($sql)
     {
         $data = [];
-        if ($result = $this->conn->query($sql)) {
+        if ($result = $this->getConn()->query($sql)) {
             $this->numRowsEffect = $result->num_rows;
 
             while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
