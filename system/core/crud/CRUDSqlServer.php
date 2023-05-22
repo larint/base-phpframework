@@ -14,6 +14,7 @@ abstract class DBCRUD
     public const T_NUMERIC  = ['bit', 'tinyint', 'smallint', 'int', 'bigint', 'decimal', 'numeric', 'smallmoney', 'money', 'float', 'real'];
     public const T_STRING  = ['char', 'varchar', 'text', 'nchar', 'nvarchar', 'ntext', 'binary', 'varbinary', 'image'];
     public const T_DATE  = ['datetime', 'datetime2', 'smalldatetime', 'date', 'time', 'datetimeoffset', 'timestamp'];
+    private static $conn = null;
 
     public function __construct()
     {
@@ -22,7 +23,7 @@ abstract class DBCRUD
 
     public function startTransaction()
     {
-        if (sqlsrv_begin_transaction($this->conn) === false) {
+        if (sqlsrv_begin_transaction(self::$conn) === false) {
             log_error(sqlsrv_errors(), 'begin transaction');
             if (DEBUG) {
                 die(print_r(sqlsrv_errors(), true));
@@ -32,12 +33,12 @@ abstract class DBCRUD
 
     public function commit()
     {
-        sqlsrv_commit($this->conn);
+        sqlsrv_commit(self::$conn);
     }
 
     public function rollback()
     {
-        sqlsrv_rollback($this->conn);
+        sqlsrv_rollback(self::$conn);
     }
 
     private function executeQuery($sql, $params)
@@ -53,9 +54,9 @@ abstract class DBCRUD
                 $arrBindParams[] = &$paramValues[$i];
             }
 
-            $stmt = sqlsrv_prepare($this->conn, $sql, $arrBindParams);
+            $stmt = sqlsrv_prepare(self::$conn, $sql, $arrBindParams);
         } else {
-            $stmt = sqlsrv_prepare($this->conn, $sql, []);
+            $stmt = sqlsrv_prepare(self::$conn, $sql, []);
         }
 
         if(!$stmt) {
@@ -507,22 +508,24 @@ abstract class DBCRUD
 
     private function connectDB()
     {
-        $this->conn = sqlsrv_connect(DB_HOST, array(
-            "Database"=> DB_NAME,
-            "UID"=> DB_USER,
-            "PWD"=> DB_PASS
-        ));
+        if (self::$conn == null) {
+            self::$conn = sqlsrv_connect(DB_HOST, array(
+                "Database"=> DB_NAME,
+                "UID"=> DB_USER,
+                "PWD"=> DB_PASS
+            ));
 
-        if (!$this->conn) {
-            log_error(sqlsrv_errors(), "Connection could not be established");
-            if (DEBUG) {
-                die(print_r(sqlsrv_errors(), true));
+            if (!self::$conn) {
+                log_error(sqlsrv_errors(), "Connection could not be established");
+                if (DEBUG) {
+                    die(print_r(sqlsrv_errors(), true));
+                }
             }
         }
     }
 
     private function disconnectDB()
     {
-        sqlsrv_close($this->conn);
+        sqlsrv_close(self::$conn);
     }
 }

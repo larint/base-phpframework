@@ -668,6 +668,6 @@ abstract class DBCRUD
 
     private function disconnectDB()
     {
-        $this->conn->close();
+        self::$conn->close();
     }
 }
