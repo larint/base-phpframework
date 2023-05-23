@@ -143,6 +143,8 @@ class AppRouter
             return self::METHOD_NOT_FOUND;
         }
 
+        self::checkAliasRouter();
+
         foreach (self::$routes[$requestMethod] as $resource) {
             $args = [];
             $routeName = key($resource);
@@ -277,6 +279,22 @@ class AppRouter
         }
     }
 
+    private static function checkAliasRouter()
+    {
+        $routerAlias = [];
+        foreach (self::$routes as $resource) {
+            foreach ($resource as $route) {
+                foreach ($route as $key => $item) {
+                    $handler = $item['handler'];
+                    $alias = $item['alias'];
+                    if (in_array($alias, $routerAlias)) {
+                        throw new Exception("Alias  router [$alias] duplicate in $handler", 1);
+                    }
+                    $routerAlias[] = $alias;
+                }
+            }
+        }
+    }
     /**
      * save action for post request
      */
