@@ -352,8 +352,8 @@ class AppRouter
                 }
             }
         }
-
-        throw new Exception("Router name not define");
+        log_error("Router name with alias [$alias] not define");
+        return "Router name with alias [$alias] not define";
     }
 
     private static function isRouteParams($routeName)

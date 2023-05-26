@@ -258,7 +258,7 @@ if (!function_exists('is_error_app')) {
 if (!function_exists('hash_pass')) {
     function hash_pass($pass)
     {
-        return password_hash(md5($pass), PASSWORD_DEFAULT);
+        return password_hash($pass, PASSWORD_DEFAULT);
     }
 }
 
