@@ -19,7 +19,7 @@ class ModelLoader
     {
         // if controler in system then noneed load model
         if ($this->request == REQUEST_SYSTEM) {
-            return true;
+            // return true;
         }
 
         if (DB_CONNECTION == 'mysql') {
